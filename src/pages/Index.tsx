@@ -5,47 +5,7 @@ import { Book, Upload, MessageSquare, ArrowRight, Search, Calendar, Bookmark, Ho
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import CategoryCard from '../components/CategoryCard';
-import CultureCard from '../components/CultureCard';
 import ChatWithAI from '../components/ChatWithAI';
-
-// Sample data
-const featuredContent = [
-  {
-    id: 'kathak',
-    title: 'Kathak: The Dance of Storytelling',
-    image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b',
-    category: 'Dance Forms',
-    region: 'North India',
-    era: 'Mughal Era',
-    description: 'Kathak is one of the eight major forms of Indian classical dance that originated from the traveling bards of North India.'
-  },
-  {
-    id: 'warli',
-    title: 'Warli Art: Tribal Storytelling',
-    image: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6',
-    category: 'Art Forms',
-    region: 'Maharashtra',
-    era: 'Ancient',
-    description: 'Warli painting is a tribal art form created by the tribal people from the North Sahyadri Range in Maharashtra.'
-  },
-  {
-    id: 'diwali',
-    title: 'Diwali: Festival of Lights',
-    image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22',
-    category: 'Festivals',
-    region: 'Pan India',
-    description: 'Diwali, the festival of lights, is one of the most celebrated festivals in India symbolizing the victory of light over darkness.'
-  },
-  {
-    id: 'vedas',
-    title: 'The Vedas: Ancient Knowledge',
-    image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07',
-    category: 'Scriptures',
-    region: 'Ancient India',
-    era: 'Vedic Period',
-    description: 'The Vedas are a large body of religious texts originating in ancient India, composed in Vedic Sanskrit.'
-  }
-];
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -147,39 +107,8 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Featured Content */}
-        <section className="py-12 md:py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-              <div>
-                <h2 className="text-3xl font-bold mb-2">Featured Content</h2>
-                <p className="text-gray-600">Discover highlighted cultural treasures</p>
-              </div>
-              <Link to="/library" className="flex items-center text-cultural-saffron mt-4 md:mt-0 hover:underline">
-                <span>View all content</span>
-                <ArrowRight className="h-4 w-4 ml-1" />
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredContent.map((item) => (
-                <CultureCard
-                  key={item.id}
-                  id={item.id}
-                  title={item.title}
-                  image={item.image}
-                  category={item.category}
-                  region={item.region}
-                  era={item.era}
-                  description={item.description}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-        
         {/* Navigation Cards */}
-        <section className="py-12 md:py-16 bg-white">
+        <section className="py-12 md:py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <h2 className="text-3xl font-bold mb-8 text-center">Explore the Cultural Hub</h2>
             
