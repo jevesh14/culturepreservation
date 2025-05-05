@@ -9,6 +9,7 @@ import Library from "./pages/Library";
 import Upload from "./pages/Upload";
 import Discussion from "./pages/Discussion";
 import NotFound from "./pages/NotFound";
+import DiscussionDetail from "./pages/DiscussionDetail";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/library" element={<Library />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/discussion" element={<Discussion />} />
+          <Route path="/discussion/:id" element={<DiscussionDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
