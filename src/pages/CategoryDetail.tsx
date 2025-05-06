@@ -36,7 +36,7 @@ const getCategoryData = (categoryId: string): CategoryData => {
     title: categoryId === 'scriptures' ? 'Scriptures' : 
            categoryId === 'dance-forms' ? 'Dance Forms' :
            categoryId === 'art-forms' ? 'Art Forms' : 
-           categoryId === 'festivals' ? 'Festivals',
+           categoryId === 'festivals' ? 'Festivals' : 'Unknown Category',
     description: 'Discover the rich heritage and tradition of Indian culture',
     longDescription: 'This category showcases the diverse and profound aspects of Indian cultural heritage, reflecting centuries of wisdom, creativity, and spiritual traditions.',
     coverImage: 'https://images.unsplash.com/photo-1470290378698-263af93ea456',
