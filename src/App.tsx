@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import MobileAuth from "./pages/MobileAuth";
 import CategoryDetail from "./pages/CategoryDetail";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/discussion" element={<Discussion />} />
           <Route path="/discussion/:id" element={<DiscussionDetail />} />
           <Route path="/auth/mobile" element={<MobileAuth />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
