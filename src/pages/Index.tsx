@@ -55,6 +55,10 @@ const Index = () => {
                   <Upload className="h-5 w-5" />
                   <span>Upload Content</span>
                 </Link>
+                <Link to="/auth/mobile" className="flex items-center space-x-2 px-4 py-2.5 rounded-lg bg-white border border-cultural-saffron/40 text-cultural-saffron shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                  <MessageSquare className="h-5 w-5" />
+                  <span>Sign In</span>
+                </Link>
               </div>
             </div>
           </div>
