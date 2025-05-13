@@ -1,4 +1,4 @@
-// ✅ Final full CategoryDetail.tsx page with examples for 'scriptures'
+// ✅ Final updated CategoryDetail.tsx with Scripture examples and placeholder images
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, BookOpen, Tag, ChevronRight } from 'lucide-react';
@@ -27,13 +27,13 @@ interface CategoryData {
   }>;
 }
 
-// 📌 Custom data for categories, with populated examples for 'scriptures'
+// ✅ Updated function to return placeholder images and content for scriptures
 const getCategoryData = (categoryId: string): CategoryData => {
   return {
     id: categoryId,
-    title: categoryId === 'scriptures' ? 'Scriptures' :
+    title: categoryId === 'scriptures' ? 'Scriptures' : 
            categoryId === 'dance-forms' ? 'Dance Forms' :
-           categoryId === 'art-forms' ? 'Art Forms' :
+           categoryId === 'art-forms' ? 'Art Forms' : 
            categoryId === 'festivals' ? 'Festivals' : 'Unknown Category',
     description: 'Discover the rich heritage and tradition of Indian culture',
     longDescription: 'This category showcases the diverse and profound aspects of Indian cultural heritage, reflecting centuries of wisdom, creativity, and spiritual traditions.',
@@ -45,7 +45,7 @@ const getCategoryData = (categoryId: string): CategoryData => {
       {
         id: 'vedas-upanishads',
         title: 'Vedas & Upanishads',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Ancient_Vedic_Texts.jpg/1024px-Ancient_Vedic_Texts.jpg',
+        image: 'https://via.placeholder.com/300x200?text=Vedas+%26+Upanishads',
         category: 'Scriptures',
         region: 'Pan India',
         era: 'Vedic Period',
@@ -54,7 +54,7 @@ const getCategoryData = (categoryId: string): CategoryData => {
       {
         id: 'bhagavad-gita',
         title: 'Bhagavad Gita',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/3/39/Krishna_Arjuna_in_mah_bharata.jpg',
+        image: 'https://via.placeholder.com/300x200?text=Bhagavad+Gita',
         category: 'Scriptures',
         region: 'India',
         era: 'Epic Period',
@@ -63,7 +63,7 @@ const getCategoryData = (categoryId: string): CategoryData => {
       {
         id: 'ramcharitmanas',
         title: 'Ramcharitmanas',
-        image: 'https://upload.wikimedia.org/wikipedia/commons/3/36/Tulsidas_Ramayana.jpg',
+        image: 'https://via.placeholder.com/300x200?text=Ramcharitmanas',
         category: 'Scriptures',
         region: 'North India',
         era: 'Medieval',
