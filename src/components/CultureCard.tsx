@@ -36,9 +36,12 @@ const CultureCard = ({
     setIsFavorite(!isFavorite);
   };
 
+  // Generate category slug for URL
+  const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+  
   // Create a more specific link if we have detailed content
   const hasDetailedContent = historicalBackground || culturalSignificance || modernRelevance;
-  const linkPath = hasDetailedContent ? `/culture/${id}?category=${category.toLowerCase().replace(/\s+/g, '-')}` : `/culture/${id}`;
+  const linkPath = hasDetailedContent ? `/culture/${id}?category=${categorySlug}` : `/culture/${id}`;
 
   return (
     <Link to={linkPath} className="group">
