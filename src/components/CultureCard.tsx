@@ -1,4 +1,3 @@
-
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -39,9 +38,8 @@ const CultureCard = ({
   // Generate category slug for URL
   const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
   
-  // Create a more specific link if we have detailed content
-  const hasDetailedContent = historicalBackground || culturalSignificance || modernRelevance;
-  const linkPath = hasDetailedContent ? `/culture/${id}?category=${categorySlug}` : `/culture/${id}`;
+  // Always use the direct path to the culture item detail with the ID
+  const linkPath = `/culture/${id}`;
 
   return (
     <Link to={linkPath} className="group">

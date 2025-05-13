@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Clock, MapPin, Tag, ChevronRight } from 'lucide-react';
@@ -21,7 +20,7 @@ interface CultureItem {
 }
 
 // Function to get item data based on itemId and category
-const getCultureItemData = (itemId: string, category: string): CultureItem | null => {
+const getCultureItemData = (itemId: string): CultureItem | null => {
   // Scripture items data
   const scriptureItems = [
     {
@@ -134,15 +133,8 @@ const getCultureItemData = (itemId: string, category: string): CultureItem | nul
     }
   ];
 
-  // Find the item by ID
-  if (category.toLowerCase() === 'scriptures') {
-    return scriptureItems.find(item => item.id === itemId) || null;
-  }
-  
-  // You can add more categories here as needed
-  
-  // Return null if item not found
-  return null;
+  // Find the item by ID directly from our scriptureItems array
+  return scriptureItems.find(item => item.id === itemId) || null;
 };
 
 const CultureItemDetail = () => {
@@ -157,12 +149,12 @@ const CultureItemDetail = () => {
     if (itemId) {
       // Simulating API call
       setTimeout(() => {
-        const data = getCultureItemData(itemId, category);
+        const data = getCultureItemData(itemId);
         setItem(data);
         setLoading(false);
       }, 500);
     }
-  }, [itemId, category]);
+  }, [itemId]);
 
   if (loading) {
     return (
