@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import DiscussionDetail from "./pages/DiscussionDetail";
 import MobileAuth from "./pages/MobileAuth";
 import CategoryDetail from "./pages/CategoryDetail";
+import CultureItemDetail from "./pages/CultureItemDetail";
 import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/library" element={<Library />} />
           <Route path="/library/:categoryId" element={<CategoryDetail />} />
+          <Route path="/culture/:itemId" element={<CultureItemDetail />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/discussion" element={<Discussion />} />
           <Route path="/discussion/:id" element={<DiscussionDetail />} />

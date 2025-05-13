@@ -11,9 +11,23 @@ interface CultureCardProps {
   region: string;
   era?: string;
   description: string;
+  historicalBackground?: string;
+  culturalSignificance?: string;
+  modernRelevance?: string;
 }
 
-const CultureCard = ({ id, title, image, category, region, era, description }: CultureCardProps) => {
+const CultureCard = ({ 
+  id, 
+  title, 
+  image, 
+  category, 
+  region, 
+  era, 
+  description,
+  historicalBackground,
+  culturalSignificance,
+  modernRelevance
+}: CultureCardProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -22,8 +36,12 @@ const CultureCard = ({ id, title, image, category, region, era, description }: C
     setIsFavorite(!isFavorite);
   };
 
+  // Create a more specific link if we have detailed content
+  const hasDetailedContent = historicalBackground || culturalSignificance || modernRelevance;
+  const linkPath = hasDetailedContent ? `/culture/${id}?category=${category.toLowerCase().replace(/\s+/g, '-')}` : `/culture/${id}`;
+
   return (
-    <Link to={`/culture/${id}`} className="group">
+    <Link to={linkPath} className="group">
       <div className="rounded-xl overflow-hidden bg-white shadow-md hover:shadow-cultural-hover transition-all duration-300 group-hover:-translate-y-1">
         <div className="relative h-48 overflow-hidden">
           <img 
@@ -64,6 +82,11 @@ const CultureCard = ({ id, title, image, category, region, era, description }: C
           <p className="text-sm text-gray-600 line-clamp-2">
             {description}
           </p>
+          {hasDetailedContent && (
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <span className="text-xs text-cultural-saffron font-medium">View detailed information</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

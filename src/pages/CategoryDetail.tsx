@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, MapPin, BookOpen, Tag, ChevronRight, Plus } from 'lucide-react';
@@ -27,13 +26,128 @@ interface CategoryData {
     region?: string;
     era?: string;
     description: string;
+    historicalBackground?: string;
+    culturalSignificance?: string;
+    modernRelevance?: string;
   }>;
 }
 
 // Placeholder data - you'll replace this with real data later
 const getCategoryData = (categoryId: string): CategoryData => {
-  // This is sample data that will be replaced when you add your own content
-  return {
+  // Scripture items data
+  const scriptureItems = [
+    {
+      id: 'vedas-upanishads',
+      title: 'Vedas and Upanishads',
+      image: 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb',
+      category: 'Scriptures',
+      region: 'Ancient India',
+      era: 'Vedic Period (1500 - 500 BCE)',
+      description: 'The fountainhead of Indian spiritual and philosophical thought, preserved through oral tradition and written manuscripts.',
+      historicalBackground: 'These ancient Sanskrit texts—composed over 3,000 years ago—are the fountainhead of Indian spiritual and philosophical thought. In Rajasthan, they have been preserved not just in books, but in sound—chanted with precision by Brahmin families across centuries. Their oral recitation, passed like sacred flame, is an art of breath, rhythm, and memory.',
+      culturalSignificance: 'They are not just read—they are lived. The Vedas guide temple architecture, fire rituals, and seasonal celebrations. The Upanishads\' probing metaphysics have shaped local storytelling, folklore, and moral codes. Even in rural shrines, their echo lingers.',
+      modernRelevance: 'From gurukuls in the Aravallis to iPads in classrooms, these texts are being digitized and taught to new generations. Meditation apps quote them. Podcasts break them down. Rajasthan\'s desert wisdom now travels the globe.'
+    },
+    {
+      id: 'bhagavad-gita',
+      title: 'Bhagavad Gita',
+      image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be',
+      category: 'Scriptures',
+      region: 'Ancient India',
+      era: 'Epic Period',
+      description: 'The divine dialogue between Krishna and Arjuna, offering guidance on duty, ethics, and spiritual wisdom.',
+      historicalBackground: 'Embedded in the Mahabharata, this divine dialogue between Krishna and Arjuna arrived in Rajasthan via saints, storytellers, and royal courts. It became a text of leadership, ethics, and inner war.',
+      culturalSignificance: 'The Gita is not a book—it\'s a compass. Rajput warriors, Jain merchants, and housewives alike turn to its verses for guidance. It\'s recited before battles, exams, and even court verdicts.',
+      modernRelevance: 'IAS aspirants study it. Motivational speakers quote it. Rajasthan\'s dusty scrolls now scroll across Instagram feeds, blessing the day with #ShlokOfTheDay.'
+    },
+    {
+      id: 'ramcharitmanas',
+      title: 'Ramcharitmanas',
+      image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098',
+      category: 'Scriptures',
+      region: 'North India',
+      era: '16th Century',
+      description: 'Tulsidas\'s retelling of the Ramayana in Awadhi language, widely revered and recited throughout Rajasthan.',
+      historicalBackground: 'In the 16th century, Tulsidas gave the Ramayana a lyrical rebirth in Awadhi. Rajasthan embraced it like a desert finds monsoon. Bhajan groups, temple reciters, and even grandmothers made it theirs.',
+      culturalSignificance: 'It is part lullaby, part life-guide. Women memorize it. Children hear it in bedtime tales. It\'s chanted during Ram Navami, read in mourning, and whispered for luck.',
+      modernRelevance: 'WhatsApp forwards carry its verses. YouTube livestreams of Sundarkand draw thousands every Tuesday. It\'s spiritual fuel in a digital bottle.'
+    },
+    {
+      id: 'devnarayan-mahagatha',
+      title: 'Devnarayan Mahagatha',
+      image: 'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e',
+      category: 'Scriptures',
+      region: 'Rajasthan',
+      era: 'Medieval',
+      description: 'Epic of a divine hero riding a horse, sung by Bhopa priest-singers using scrolls called Phads.',
+      historicalBackground: 'This epic of a divine hero riding a horse through Rajasthan\'s spiritual soil is sung by Bhopa priest-singers, using scrolls 15 feet long called Phads.',
+      culturalSignificance: 'It\'s performed in night-long gatherings, blending music, myth, and message. Each line is memorized, each character painted with reverence.',
+      modernRelevance: 'Now being archived by cultural ministries, and reimagined through animation for kids. Myth meets multimedia.'
+    },
+    {
+      id: 'tejaji-pabuji-phad',
+      title: 'Tejaji & Pabuji Ki Phad',
+      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840',
+      category: 'Scriptures',
+      region: 'Rajasthan',
+      era: 'Medieval',
+      description: 'Epic tales of Rajasthan\'s folk deities painted on massive scrolls and narrated by Bhopa storytellers.',
+      historicalBackground: 'Tejaji, the fearless protector against snakebites, and Pabuji, the camel-riding folk deity who defends honor and cattle, are among Rajasthan\'s most beloved epic heroes. Their tales are painted on enormous scrolls known as Phads—portable temples of pigment and story. These scrolls are not just artistic expressions but religious maps, each segment depicting scenes that Bhopa storytellers bring to life.',
+      culturalSignificance: 'These warrior deities embody the Rajasthani ideals of bravery, sacrifice, and deep connection to nature. The Phad becomes a sacred performance space as Bhopa and Bhopi narrators sing the stories, play the ravanhatta, and awaken devotion in village gatherings that last until dawn. Their devotion is so deep, devotees believe invoking their names can heal snakebite victims or bless cattle.',
+      modernRelevance: 'Today, these Phads are being digitized by museums, while folk collectives create contemporary adaptations in animation, theatre, and school plays. You\'ll find Tejaji\'s figure on truck murals, temple walls, and even as village fair mascots. Through digital storytelling apps and cultural fairs, these legends now inspire young audiences far beyond the sand dunes.'
+    },
+    {
+      id: 'jain-agamas',
+      title: 'Jain Agamas',
+      image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098',
+      category: 'Scriptures',
+      region: 'Rajasthan',
+      era: 'Ancient',
+      description: 'Spiritual treatises rooted in logic, ethics, and non-violence, preserved in Jain communities across Rajasthan.',
+      historicalBackground: 'Composed in ancient Prakrit and transmitted through a lineage of ascetic scholars, the Jain Agamas are spiritual treatises rooted in logic, ethics, and non-violence. Rajasthan, home to vibrant Jain communities in cities like Bikaner and Jaisalmer, became a stronghold of Agama preservation. The temples and monastic libraries here safeguarded these texts through centuries of turmoil and change, often by copying them onto Kagzi paper made in Sanganer.',
+      culturalSignificance: 'The Agamas are not just scripture—they\'re a way of life. Their teachings on ahimsa (non-violence), aparigraha (non-possessiveness), and satya (truth) influence daily choices, diet, business ethics, and festival observances. In Rajasthan, monks still recite these texts aloud in morning rituals, while followers participate in study groups and philosophical debates.',
+      modernRelevance: 'In an age hungry for ethical clarity, the Agamas have found new life through digitization projects led by Jain trusts. Online Jain libraries, mobile apps, and even VR temple tours now include Agama teachings. The message of compassion and restraint resonates deeply with today\'s environmentally conscious and mindfulness-seeking youth.'
+    },
+    {
+      id: 'tantric-texts',
+      title: 'Tantric Texts (Nath Sect)',
+      image: 'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e',
+      category: 'Scriptures',
+      region: 'Mount Abu and Alwar',
+      era: 'Medieval',
+      description: 'Esoteric scriptures exploring spiritual transformation through energy work, mantras, and ritual practices.',
+      historicalBackground: 'Passed down through shadowed caves, whispering forests, and ascetic silence, the Tantric scriptures of the Nath Sect have long been concealed from the public eye. Rooted in Mount Abu and Alwar, these manuals weren\'t written for scholars—they were lived by yogis who carved their path with discipline and secrecy.',
+      culturalSignificance: 'These texts go beyond rituals—they explore chakras, energy flows, mantras, and mudras as vehicles for liberation. Fire ceremonies, symbolic diagrams drawn with ash, and practices like kundalini awakening are grounded in these teachings. The Nath yogis treat them as divine codes—keys to spiritual transformation.',
+      modernRelevance: 'With the rise of global yoga and tantra studies, these once-guarded traditions are now surfacing in academic conferences, yoga teacher trainings, and holistic healing centers. Documentaries and heritage researchers are decoding these scripts, making Rajasthan a hub for seekers from LA to London.'
+    },
+    {
+      id: 'kavad-shrines',
+      title: 'Kavad Shrines',
+      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840',
+      category: 'Scriptures',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'Hand-painted wooden shrines that unfold to reveal stories from epics and mythology, carried by storytellers.',
+      historicalBackground: 'The Kavad is no ordinary shrine—it is a hand-painted, story-filled wooden temple that folds like a cabinet and unfolds into myth. Carried by the Kavadiya Bhats across Rajasthan\'s sunbaked terrain, each Kavad is a library on foot, holding episodes from Ramayana, Mahabharata, and folk epics.',
+      culturalSignificance: 'When the storyteller opens each panel, he opens a new chapter. The act of storytelling becomes devotional performance, where pilgrims gather in dusty courtyards to witness the layered visuals. It\'s a sacred theatre where the divine walks door to door.',
+      modernRelevance: 'Today, design institutes, museums, and educational kits across India have embraced the Kavad format. It\'s being revived in school storytelling programs and featured in art biennales worldwide as a model of portable narrative architecture.'
+    },
+    {
+      id: 'bhopa-bhopi',
+      title: 'Bhopa & Bhopi Traditions',
+      image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be',
+      category: 'Scriptures',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'Oral epic performers who use music and storytelling to keep Rajasthan\'s spiritual memory alive through night-long performances.',
+      historicalBackground: 'A duet of devotion and drama, the Bhopa and Bhopi are oral epic performers who preserve Rajasthan\'s spiritual memory. The Bhopa sings and plays the ravanhatta—a haunting stringed instrument—while the Bhopi joins in chorus or percussion. Together, they animate giant Phad scrolls in performances that often last entire nights.',
+      culturalSignificance: 'These performers are more than musicians—they are living vessels of divine narrative. Their songs invoke gods, heroes, and moral tales that guide rural ethics. Often barefoot, sitting by lantern-light, they are welcomed into villages like wandering sages.',
+      modernRelevance: 'With support from folk arts organizations and UNESCO, Bhopa-Bhopi duos now perform at international folk festivals and conferences. Their art is also being archived in audiovisual libraries, and young Bhopas are being trained in music academies to keep the tradition thriving.'
+    }
+  ];
+
+  // Common category data structure
+  const baseCategory = {
     id: categoryId,
     title: categoryId === 'scriptures' ? 'Scriptures' : 
            categoryId === 'dance-forms' ? 'Dance Forms' :
@@ -45,8 +159,47 @@ const getCategoryData = (categoryId: string): CategoryData => {
     historicalBackground: 'Dating back thousands of years, these cultural expressions have evolved through various dynasties and historical periods, each adding unique elements to the tradition.',
     culturalSignificance: 'These cultural elements are not merely art forms but integral parts of social identity, religious practices, and community cohesion across diverse regions of India.',
     modernRelevance: 'While deeply rooted in tradition, these cultural expressions continue to evolve and remain relevant in contemporary society, influencing art, design, spirituality, and personal identity.',
-    items: []  // You'll populate this with your own data later
+    items: []
   };
+
+  // Customize based on category
+  if (categoryId === 'scriptures') {
+    return {
+      ...baseCategory,
+      title: 'Scriptures',
+      description: 'Sacred texts that form the foundation of Indian spiritual and philosophical traditions',
+      longDescription: 'Indian scriptures represent some of the world\'s oldest and most profound literary and philosophical works. These texts range from the ancient Vedas to folk epics preserved through oral tradition, each offering unique insights into spirituality, ethics, and cultural values that continue to shape Indian society today.',
+      coverImage: 'https://images.unsplash.com/photo-1466442929976-97f336a657be',
+      historicalBackground: 'India\'s scriptural traditions span several millennia, from the ancient Vedic compositions (1500 BCE) to medieval devotional texts. These works have been preserved through various means—palm leaf manuscripts, oral recitation, temple inscriptions, and illustrated scrolls. Each text emerged from specific historical contexts but transcended its origins to become timeless wisdom.',
+      culturalSignificance: 'These sacred texts are not merely religious documents but the foundation of Indian thought, art, ethics, and social structures. They provide philosophical frameworks, moral codes, and spiritual practices that have guided countless generations. The teachings found in these texts inform everything from daily rituals to architectural principles, from music to governance.',
+      modernRelevance: 'In today\'s digital age, ancient wisdom finds new expression. These texts are being digitized, translated, and shared globally. Their ethical principles address contemporary issues like environmental ethics and mental well-being. Modern scholars, spiritualists, and even business leaders continue to find relevant guidance in these ancient words.',
+      items: scriptureItems
+    };
+  } else if (categoryId === 'dance-forms') {
+    // Return dance forms data (we'll add this content later)
+    return {
+      ...baseCategory,
+      title: 'Dance Forms',
+      coverImage: 'https://images.unsplash.com/photo-1466442929976-97f336a657be'
+    };
+  } else if (categoryId === 'art-forms') {
+    // Return art forms data (we'll add this content later)
+    return {
+      ...baseCategory,
+      title: 'Art Forms',
+      coverImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6'
+    };
+  } else if (categoryId === 'festivals') {
+    // Return festivals data (we'll add this content later)
+    return {
+      ...baseCategory,
+      title: 'Festivals',
+      coverImage: 'https://images.unsplash.com/photo-1500673922987-e212871fec22'
+    };
+  }
+
+  // Default return
+  return baseCategory;
 };
 
 const CategoryDetail = () => {
