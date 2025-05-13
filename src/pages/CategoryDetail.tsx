@@ -1,11 +1,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, BookOpen, Tag, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, BookOpen, Tag, ChevronRight, Plus } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChatWithAI from '../components/ChatWithAI';
 import CultureCard from '../components/CultureCard';
+import AddCultureItemModal from '../components/AddCultureItemModal';
+import { toast } from "@/hooks/use-toast";
 
 // This type will eventually be replaced with real data from your backend
 interface CategoryData {
@@ -51,6 +53,7 @@ const CategoryDetail = () => {
   const { categoryId } = useParams<{ categoryId: string }>();
   const [categoryData, setCategoryData] = useState<CategoryData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     if (categoryId) {
@@ -61,6 +64,34 @@ const CategoryDetail = () => {
       }, 500);
     }
   }, [categoryId]);
+
+  const handleAddItem = (newItem: {
+    title: string;
+    image: string;
+    region?: string;
+    era?: string;
+    description: string;
+  }) => {
+    if (categoryData) {
+      const updatedItem = {
+        ...newItem,
+        id: `item-${Date.now()}`, // Create a unique ID
+        category: categoryData.title
+      };
+      
+      setCategoryData({
+        ...categoryData,
+        items: [...categoryData.items, updatedItem]
+      });
+      
+      toast({
+        title: "Item Added",
+        description: `"${newItem.title}" has been added to ${categoryData.title}`
+      });
+      
+      setShowAddModal(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -173,7 +204,16 @@ const CategoryDetail = () => {
                 </article>
                 
                 <div className="mt-12">
-                  <h2 className="text-2xl font-bold mb-6">Examples</h2>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">Examples</h2>
+                    <button 
+                      onClick={() => setShowAddModal(true)}
+                      className="flex items-center gap-1.5 px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Add New</span>
+                    </button>
+                  </div>
                   
                   {categoryData.items.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -184,7 +224,7 @@ const CategoryDetail = () => {
                           title={item.title}
                           image={item.image}
                           category={item.category}
-                          region={item.region}
+                          region={item.region || ""}
                           era={item.era}
                           description={item.description}
                         />
@@ -193,13 +233,16 @@ const CategoryDetail = () => {
                   ) : (
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
                       <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-medium mb-2">Content Coming Soon</h3>
+                      <h3 className="text-xl font-medium mb-2">No Examples Yet</h3>
                       <p className="text-gray-600 mb-4">
-                        We're currently curating examples for this category.
+                        Add your first example to this category.
                       </p>
-                      <p className="text-sm text-gray-500">
-                        Check back later for a rich collection of cultural content.
-                      </p>
+                      <button 
+                        onClick={() => setShowAddModal(true)}
+                        className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
+                      >
+                        Add New Item
+                      </button>
                     </div>
                   )}
                 </div>
@@ -267,6 +310,16 @@ const CategoryDetail = () => {
           </div>
         </section>
       </main>
+      
+      {/* Add Item Modal */}
+      {showAddModal && (
+        <AddCultureItemModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddItem}
+          category={categoryData.title}
+        />
+      )}
       
       <Footer />
       <ChatWithAI />
