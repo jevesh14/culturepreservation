@@ -1,3 +1,4 @@
+
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -40,6 +41,9 @@ const CultureCard = ({
   
   // Always use the direct path to the culture item detail with the ID
   const linkPath = `/culture/${id}`;
+  
+  // Check if we have detailed content to show
+  const hasDetailedContent = historicalBackground || culturalSignificance || modernRelevance;
 
   return (
     <Link to={linkPath} className="group">
