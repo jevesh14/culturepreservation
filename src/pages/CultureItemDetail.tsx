@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Clock, MapPin, Tag, ChevronRight } from 'lucide-react';
@@ -133,8 +134,204 @@ const getCultureItemData = (itemId: string): CultureItem | null => {
     }
   ];
 
-  // Find the item by ID directly from our scriptureItems array
-  return scriptureItems.find(item => item.id === itemId) || null;
+  // Dance forms data
+  const danceItems = [
+    {
+      id: 'ghoomar',
+      title: 'Ghoomar',
+      image: 'https://images.unsplash.com/photo-1583002083769-0b8b36d612f8',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A graceful dance of swaying ghagras and spinning silhouettes, symbolizing feminine elegance and celebration.',
+      historicalBackground: 'Originating with the Bhil tribe and later embraced by Rajput royalty, Ghoomar is a graceful dance of swaying ghagras and spinning silhouettes. Initially performed during religious rituals and royal functions, its rhythmic elegance became a symbol of celebration across Rajasthan.',
+      culturalSignificance: 'Ghoomar is the heartbeat of festive Rajasthan. Often performed by brides and womenfolk during Teej and Gangaur, it signifies auspicious beginnings, feminine strength, and communal joy. Each pirouette and hand gesture is coded in folklore.',
+      modernRelevance: 'From wedding sangeets in Mumbai to dance academies in New Jersey, Ghoomar now graces global stages and cinema, notably immortalized in Bollywood\'s period epics.'
+    },
+    {
+      id: 'kalbeliya',
+      title: 'Kalbeliya',
+      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A hypnotic dance performed by the Kalbeliya tribe that mimics the slithering grace of serpents.',
+      historicalBackground: 'Performed by the Kalbeliya tribe of snake charmers, this dance mimics the slithering grace of serpents. Rooted in nomadic desert life, it was once entertainment and enchantment in village squares.',
+      culturalSignificance: 'With hypnotic twirls and dramatic costumes adorned with mirror-work, Kalbeliya is both resistance and ritual—an ode to survival and mystique.',
+      modernRelevance: 'Honored by UNESCO as Intangible Cultural Heritage, Kalbeliya is now a staple at international folk festivals and fusion performances.'
+    },
+    {
+      id: 'terah-taali',
+      title: 'Terah Taali',
+      image: 'https://images.unsplash.com/photo-1501162946741-4960f990fdf4',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A devotional seated dance performed with 13 brass cymbals tied to the body.',
+      historicalBackground: 'A devotional seated dance from the Kamad and Bhil communities, performed with 13 brass cymbals (taals) tied to the body.',
+      culturalSignificance: 'It is an act of worship and endurance, often performed in honor of Baba Ramdev. Sometimes dancers balance pots or swords on their heads while syncing cymbal strikes to devotional songs.',
+      modernRelevance: 'Featured in Rajasthan Utsav and folk heritage circuits, it attracts scholars for its complex spiritual geometry.'
+    },
+    {
+      id: 'bhavai',
+      title: 'Bhavai',
+      image: 'https://images.unsplash.com/photo-1532517891316-72a08e5c03a7',
+      category: 'Dance Forms',
+      region: 'Western Rajasthan',
+      era: 'Traditional',
+      description: 'A balancing act where dancers whirl atop swords or glass while balancing brass pots.',
+      historicalBackground: 'Emerging from the western desert regions, Bhavai is a balancing act like no other—dancers whirl atop swords or glass while balancing up to 11 brass pots.',
+      culturalSignificance: 'Bhavai embodies female resilience, precision, and grace. Performed during marriages and temple events, it blurs the line between risk and beauty.',
+      modernRelevance: 'A symbol of feminine power in international theatre and dance showcases. Often used as a metaphor in gender empowerment workshops.'
+    },
+    {
+      id: 'chari-dance',
+      title: 'Chari Dance',
+      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
+      category: 'Dance Forms',
+      region: 'Kishangarh, Rajasthan',
+      era: 'Traditional',
+      description: 'Women balance brass pots, sometimes lit with fire, celebrating the labor of collecting water.',
+      historicalBackground: 'Originating in Kishangarh, Chari celebrates the labor of collecting water—an act sacred in Rajasthan\'s arid culture.',
+      culturalSignificance: 'Women balance brass pots, sometimes lit with fire, while dancing. It honors grace, motherhood, and daily sacrifice.',
+      modernRelevance: 'Taught in schools and featured in state tourism festivals. The props are now an artisanal export item.'
+    },
+    {
+      id: 'dhol-nritya',
+      title: 'Drum Dance (Dhol Nritya)',
+      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A pulsating tribute to valor featuring large percussion instruments strapped across the body.',
+      historicalBackground: 'Born from the warrior clans and nomadic tribes of Rajasthan, Drum Dance—known as Dhol Nritya—features large percussion instruments strapped across the body, pounded in coordination with swords, spears, or battle stances.',
+      culturalSignificance: 'A pulsating tribute to valor and strength, it was originally a part of temple processions and martial festivals. The thunder of dhols signifies power, community defense, and rhythmic unity.',
+      modernRelevance: 'Today, it electrifies stages at national parades, international tribal expos, and cultural fairs. Its dramatic presence is also popular in youth folk competitions.'
+    },
+    {
+      id: 'kathputli-puppet-dance',
+      title: 'Kathputli Puppet Dance',
+      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'Dancers mimic the stylized movements of traditional string puppets used for storytelling.',
+      historicalBackground: 'Rajasthan\'s ancient puppetry legacy inspired this human-imitating-puppet form. Dancers mimic the stylized movements of Kathputlis—traditional string puppets used for centuries to narrate myth and morality tales.',
+      culturalSignificance: 'It pays homage to the Bhatt community\'s storytelling tradition. With exaggerated jerks and frozen smiles, the dance is a nostalgic, often humorous, reflection on control, fate, and tradition.',
+      modernRelevance: 'Kathputli Dance has found its place in educational theatre, global puppet forums, and heritage tourism promotions.'
+    },
+    {
+      id: 'gair',
+      title: 'Gair',
+      image: 'https://images.unsplash.com/photo-1532517891316-72a08e5c03a7',
+      category: 'Dance Forms',
+      region: 'Mewar, Rajasthan',
+      era: 'Traditional',
+      description: 'A tribal dance where participants move in spiraling circles, wielding wooden sticks called Khanda.',
+      historicalBackground: 'From the region of Mewar, Gair evolved as a tribal dance during Holi and festive processions. Men and women move in spiraling circles, wielding wooden sticks called Khanda.',
+      culturalSignificance: 'It\'s a celebration of harvest, harmony, and collective strength. With drumbeats in the background, it becomes a visual echo of unity.',
+      modernRelevance: 'Performed in state-sponsored youth events, Gair has now become choreographed art for stage festivals and dance dramas.'
+    },
+    {
+      id: 'dandiya-raas',
+      title: 'Dandiya Raas (Rajasthani Variant)',
+      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A dance form with narrative-rich movements where the clashing of sticks represents cosmic play.',
+      historicalBackground: 'Originating in Gujarat, Rajasthan gave it a local twist with narrative-rich movements and slower tempos. Costumes became more elaborate and steps were tied to Krishna lore.',
+      culturalSignificance: 'The clashing of sticks represents the cosmic play between Radha and Krishna. It\'s not just festive fun—it\'s symbolic devotion in motion.',
+      modernRelevance: 'Dandiya nights in metros and colleges reflect this version with folk authenticity and popular flair. Cultural festivals abroad celebrate this as the heart of Indo-Western fusions.'
+    },
+    {
+      id: 'mayur-nritya',
+      title: 'Mayur Nritya',
+      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'Dancers dress in feathered fans and masks to become peacocks, inspired by Lord Krishna\'s association with these birds.',
+      historicalBackground: 'Rooted in devotional traditions, Mayur Nritya takes inspiration from Lord Krishna\'s association with peacocks. Dancers dress in feathered fans and masks to become the bird incarnate.',
+      culturalSignificance: 'It glorifies nature, rain, and divine love—embodying themes from Puranic tales. Movements are slow, majestic, and emotion-laden.',
+      modernRelevance: 'Revived in temple festivals, eco-cultural programs, and nature-themed parades. Schools and NGOs also use it for conservation awareness.'
+    },
+    {
+      id: 'rasiya-dance',
+      title: 'Rasiya Dance',
+      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
+      category: 'Dance Forms',
+      region: 'Braj, Rajasthan',
+      era: 'Traditional',
+      description: 'A dramatic musical storytelling format involving Radha-Krishna\'s romantic escapades.',
+      historicalBackground: 'Birthed in Braj, Rasiya is a dramatic musical storytelling format involving Radha-Krishna\'s romantic escapades. Dancers often sing and act.',
+      culturalSignificance: 'Blends folklore, spirituality, and playful emotion. Performed in open-air theatres, it captivates audiences with layered verses.',
+      modernRelevance: 'Digitized into short YouTube musicals and used in youth theatre training for character and expression.'
+    },
+    {
+      id: 'matki-dance',
+      title: 'Matki Dance',
+      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
+      category: 'Dance Forms',
+      region: 'Madhya Pradesh / Rajasthan Border',
+      era: 'Traditional',
+      description: 'Women balance multiple clay pots while dancing, expressing balance, responsibility, and household elegance.',
+      historicalBackground: 'Originated from the tribal belts of Madhya Pradesh but seamlessly woven into Rajasthan\'s folk identity in border districts.',
+      culturalSignificance: 'Women balance multiple clay pots while dancing, expressing balance, responsibility, and elegance in household roles.',
+      modernRelevance: 'A centerpiece at rural fairs, art museums, and government-sponsored heritage days.'
+    },
+    {
+      id: 'braj-folk-dances',
+      title: 'Braj Folk Dances',
+      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
+      category: 'Dance Forms',
+      region: 'Bharatpur & Mathura, Rajasthan',
+      era: 'Traditional',
+      description: 'Dances that trace divine episodes of Krishna\'s life from the spiritual epicenter of the region.',
+      historicalBackground: 'From the spiritual epicenter of Bharatpur and Mathura, these dances trace divine episodes of Krishna\'s life.',
+      culturalSignificance: 'The dances embody devotion and storytelling, often dramatizing Krishna\'s mischief, miracles, and love.',
+      modernRelevance: 'Central to temple festivals, Krishna Janmashtami events, and devotional tourism.'
+    },
+    {
+      id: 'kathak-jaipur-gharana',
+      title: 'Kathak (Jaipur Gharana)',
+      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
+      category: 'Dance Forms',
+      region: 'Jaipur, Rajasthan',
+      era: 'Classical',
+      description: 'A classical dance form known for vigor, dramatic storytelling, and intricate footwork.',
+      historicalBackground: 'Evolving under royal Rajput and Mughal courts, this Kathak lineage is known for vigor, dramatic storytelling, and footwork.',
+      culturalSignificance: 'The Jaipur Gharana emphasizes intricate rhythms, powerful pirouettes, and mythological narratives—performing both in temples and courts.',
+      modernRelevance: 'Showcased at global dance summits, taught online, and revived by young artists through fusion with modern genres.'
+    },
+    {
+      id: 'nagaras-dhol-dances',
+      title: 'Nagaras and Dhol Dances',
+      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'Percussion traditions that were royal heralds announcing important events and celebrations.',
+      historicalBackground: 'These percussion traditions were royal heralds—announcing coronations, temple openings, or victories.',
+      culturalSignificance: 'They still signal beginnings and celebrations. Their roaring presence unites people in sound and spirit.',
+      modernRelevance: 'Sampled in folk-electronic collaborations, opening acts at festivals, and school parades.'
+    }
+  ];
+
+  // First check the scripture items
+  const scriptureItem = scriptureItems.find(item => item.id === itemId);
+  if (scriptureItem) {
+    return scriptureItem;
+  }
+  
+  // Then check the dance items
+  const danceItem = danceItems.find(item => item.id === itemId);
+  if (danceItem) {
+    return danceItem;
+  }
+  
+  // If no match found in either array
+  return null;
 };
 
 const CultureItemDetail = () => {
