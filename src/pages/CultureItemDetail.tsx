@@ -140,7 +140,7 @@ const getCultureItemData = (itemId: string): CultureItem | null => {
 const CultureItemDetail = () => {
   const { itemId } = useParams<{ itemId: string }>();
   const [searchParams] = useSearchParams();
-  const category = searchParams.get('category') || '';
+  const category = searchParams.get('category') || 'scriptures';
   
   const [item, setItem] = useState<CultureItem | null>(null);
   const [loading, setLoading] = useState(true);
