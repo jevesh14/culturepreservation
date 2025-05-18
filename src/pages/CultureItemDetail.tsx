@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Clock, MapPin, Tag, ChevronRight } from 'lucide-react';
@@ -14,6 +13,7 @@ interface CultureItem {
   category: string;
   region?: string;
   era?: string;
+  style?: string;
   description: string;
   historicalBackground?: string;
   culturalSignificance?: string;
@@ -22,6 +22,155 @@ interface CultureItem {
 
 // Function to get item data based on itemId and category
 const getCultureItemData = (itemId: string): CultureItem | null => {
+  // Heritage Sites data
+  const heritageSites = [
+    {
+      id: 'amber-fort',
+      title: 'Amber Fort: A Fortress of Grandeur',
+      image: 'https://images.unsplash.com/photo-1582034984939-690e8c08bf30',
+      category: 'Heritage Sites',
+      region: 'Jaipur, Rajasthan',
+      era: '16th Century',
+      style: 'Rajput-Mughal',
+      description: 'A majestic blend of Hindu and Mughal architecture, featuring ornate gates, mirrored halls, and sweeping courtyards.',
+      historicalBackground: 'Built by Raja Man Singh I in 1592 and expanded by successive rulers, Amber Fort's magnificent architecture reflects the prosperity and military prowess of Rajput kings. Perched on a hillside overlooking Maota Lake, it served as the capital of Rajasthan before Jaipur was established.',
+      culturalSignificance: 'Amber Fort represents the fusion of Hindu and Muslim architectural elements, showcasing the cultural synthesis that characterized the Rajput courts. Its intricate mirror work, detailed paintings, and strategic design illustrate both artistic refinement and military ingenuity.',
+      modernRelevance: 'As a UNESCO World Heritage Site, Amber Fort draws millions of visitors annually, contributing significantly to Rajasthan's tourism economy. It continues to inspire contemporary architects and designers, while hosting cultural performances and sound-and-light shows that keep traditions alive.'
+    },
+    {
+      id: 'jaisalmer-fort',
+      title: 'Jaisalmer Fort: The Golden Citadel',
+      image: 'https://images.unsplash.com/photo-1477587458883-47160a8ef1d3',
+      category: 'Heritage Sites',
+      region: 'Jaisalmer, Rajasthan',
+      era: '12th Century',
+      style: 'Rajput',
+      description: 'One of the world\'s few living forts, with honey-colored sandstone walls that house temples, palaces, and havelis.',
+      historicalBackground: 'Founded in 1156 CE by Rawal Jaisal, Jaisalmer Fort rises from the golden sands of the Thar Desert like a mirage. Built from yellow sandstone that glows golden in the sunset, it became a crucial trading post on ancient caravan routes to Central Asia and the Middle East.',
+      culturalSignificance: 'Unlike most forts, Jaisalmer remains a living heritage site with approximately 3,000 people still residing within its walls. Its narrow streets house ancient Jain temples with intricate carvings, royal palaces, and merchants' mansions (havelis) that reflect the prosperity of the Silk Road trade.',
+      modernRelevance: 'As tourism has grown, the fort faces conservation challenges from modern infrastructure and water drainage issues. Yet it continues to be a vibrant cultural center where traditional crafts, music, and cuisine thrive alongside contemporary life.'
+    },
+    {
+      id: 'mehrangarh-fort',
+      title: 'Mehrangarh Fort: The Citadel of the Sun',
+      image: 'https://images.unsplash.com/photo-1584793632154-c10a5a332596',
+      category: 'Heritage Sites',
+      region: 'Jodhpur, Rajasthan',
+      era: '15th Century',
+      style: 'Rajput',
+      description: 'Perched 400 feet above Jodhpur, this imposing fort features intricate carvings, expansive courtyards, and a museum.',
+      historicalBackground: 'Founded around 1459 by Rao Jodha, Mehrangarh Fort stands on a 400-foot rocky hill overlooking the "Blue City" of Jodhpur. Its massive walls, reaching up to 118 feet in height, have witnessed centuries of battles and royal ceremonies.',
+      culturalSignificance: 'The fort houses several palaces with intricate carvings, expansive courtyards, and historical artifacts. Its museum contains one of India's most important collections of miniature paintings, arms, costumes, and royal palanquins.',
+      modernRelevance: 'Apart from being a premier tourist destination, Mehrangarh hosts cultural events including the Rajasthan International Folk Festival. It has featured in Hollywood films and music videos, introducing Rajasthan's heritage to global audiences.'
+    },
+    // ... keep existing code for other heritage sites
+  ];
+
+  // Architectural Beauties data
+  const architecturalBeauties = [
+    {
+      id: 'hawa-mahal',
+      title: 'Hawa Mahal: The Palace of Winds',
+      image: 'https://images.unsplash.com/photo-1586370925911-25d9ebc94dfd',
+      category: 'Architectural Beauties',
+      region: 'Jaipur, Rajasthan',
+      era: '18th Century',
+      style: 'Rajput',
+      description: 'With its honeycomb façade and 953 small windows, it was designed for royal women to observe street life without being seen.',
+      historicalBackground: 'Constructed in 1799 by Maharaja Sawai Pratap Singh, Hawa Mahal was designed by architect Lal Chand Ustad as an extension of the City Palace. Its distinctive honeycomb facade with 953 small windows (jharokhas) was built to allow royal ladies to observe street festivities while remaining unseen, adhering to the practice of purdah.',
+      culturalSignificance: 'The five-story pyramid-shaped structure represents the crown of Krishna with its 953 windows. Its pink sandstone facade with intricate latticework and floral patterns exemplifies Rajput architecture while incorporating elements of Mughal design.',
+      modernRelevance: 'Today, Hawa Mahal is one of Jaipur's most photographed landmarks and appears on countless travel brochures representing India. It continues to inspire modern architects seeking sustainable cooling solutions, as its original design provided natural air conditioning in Jaipur's desert climate.'
+    },
+    {
+      id: 'jal-mahal',
+      title: 'Jal Mahal: Water Palace of Jaipur',
+      image: 'https://images.unsplash.com/photo-1581276879432-15a67f61f30e',
+      category: 'Architectural Beauties',
+      region: 'Jaipur, Rajasthan',
+      era: '18th Century',
+      style: 'Rajput-Mughal',
+      description: 'Floating in the middle of Man Sagar Lake, this palace is a tranquil fusion of Rajput and Mughal design.',
+      historicalBackground: 'Built in the 18th century by Maharaja Jai Singh II, Jal Mahal represents a unique architectural achievement. While appearing as a single-story building, four of its five floors remain underwater when the lake is full, employing sophisticated engineering to protect against water damage.',
+      culturalSignificance: 'The palace blends Rajput and Mughal architectural styles with red sandstone walls and elegant arches. Originally built as a hunting lodge and pleasure retreat for royalty, it features traditional chattris (domed pavilions) and intricate stone carvings.',
+      modernRelevance: 'After years of pollution threatened both the lake and palace, recent conservation efforts have revitalized the ecosystem. Evening light illumination of the palace has created a new attraction for tourists and locals alike.'
+    },
+    {
+      id: 'patwon-ki-haveli',
+      title: 'Patwon Ki Haveli: The Mansion of Brocade Merchants',
+      image: 'https://images.unsplash.com/photo-1590080748533-30e7eecb3887',
+      category: 'Architectural Beauties',
+      region: 'Jaisalmer, Rajasthan',
+      era: '19th Century',
+      style: 'Rajput',
+      description: 'A cluster of five havelis with intricate jharokhas (balconies) and mirror work that showcase the wealth of merchant families.',
+      historicalBackground: 'Built between 1800 and 1860 by Guman Chand Patwa and his five sons, who were wealthy traders of gold and silver brocade, the Patwon Ki Haveli complex comprises five adjacent mansions. The first and largest haveli took 55 years to complete.',
+      culturalSignificance: 'These havelis showcase the pinnacle of Jaisalmer's architectural style with intricate yellow sandstone carvings, latticework balconies, and mirror-inlaid chambers. The designs incorporate both traditional motifs and folk influences, reflecting the merchant class's growing prominence.',
+      modernRelevance: 'Two of the havelis now function as museums highlighting the craftsmanship of the era. Contemporary architects study their passive cooling systems and light-capturing designs as sustainable building practices.'
+    },
+    // ... keep existing code for other architectural beauties
+  ];
+
+  // Folk Life & Traditions data
+  const folkLifeTraditions = [
+    {
+      id: 'bishnoi',
+      title: 'Bishnoi Traditions: Guardians of Nature',
+      image: 'https://images.unsplash.com/photo-1571758441389-6dbb208c3a9f',
+      category: 'Folk Life & Traditions',
+      region: 'Western Rajasthan',
+      era: 'Traditional',
+      style: 'Lifestyle',
+      description: 'The Bishnoi community lives in harmony with nature—protecting trees, wildlife, and the blackbuck as a model of eco-spiritual living.',
+      historicalBackground: 'Founded in 1485 by Guru Jambheshwar, the Bishnoi sect adheres to 29 principles (bishnoi means "twenty-nine") that emphasize environmental protection. They're known for the Khejarli Massacre of 1730 when 363 Bishnois sacrificed their lives hugging trees to prevent their felling by the Maharaja's men.',
+      culturalSignificance: 'The Bishnoi way of life represents one of the world's earliest ecological movements. Their villages are havens for blackbucks, gazelles, and birds that have disappeared elsewhere. Their traditional homes use natural materials and they maintain sustainable agricultural practices.',
+      modernRelevance: 'As climate change concerns grow, the Bishnoi philosophy has gained renewed attention. Conservation NGOs partner with Bishnoi communities, and eco-tourism initiatives allow visitors to experience their sustainable lifestyle.'
+    },
+    {
+      id: 'pushkar-fair',
+      title: 'Pushkar Camel Fair: Desert Carnival',
+      image: 'https://images.unsplash.com/photo-1584451854588-5b6b0dfced09',
+      category: 'Folk Life & Traditions',
+      region: 'Pushkar, Rajasthan',
+      era: 'Annual',
+      style: 'Festival',
+      description: 'One of the world\'s largest camel fairs, combining livestock trading with religious pilgrimage and vibrant folk festivities.',
+      historicalBackground: 'While the religious significance of Pushkar's sacred lake dates back thousands of years, the camel fair began as a practical gathering for desert traders and nomads. It coincides with the Kartik Purnima full moon, considered auspicious for bathing in the holy lake.',
+      culturalSignificance: 'The fair represents a vibrant intersection of commerce, culture, and spirituality. Beyond camel and livestock trading, it features folk performances, traditional craft markets, and competitions like mustache contests and bridal dress-ups that showcase Rajasthan's cultural diversity.',
+      modernRelevance: 'Now attracting thousands of international tourists, the fair has evolved to include hot air balloon rides and photography tours while maintaining its authentic core. It provides crucial income for rural artisans and performers while keeping traditional crafts viable.'
+    },
+    {
+      id: 'rajasthani-puppet',
+      title: 'Kathputli: The String Puppets',
+      image: 'https://images.unsplash.com/photo-1622482594949-a2791df1546c',
+      category: 'Folk Life & Traditions',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      style: 'Performance',
+      description: 'Ancient storytelling tradition using colorful wooden puppets to narrate folk tales, epics, and royal adventures.',
+      historicalBackground: 'The art of Kathputli (wooden puppet) dates back over a thousand years in Rajasthan. Traditionally performed by the Bhat community, these portable puppet shows traveled from village to village, spreading stories and news before modern communication existed.',
+      culturalSignificance: 'The puppets represent archetypal characters from folklore—the dancing girl, the magician, the king, and the queen. Their exaggerated features and colorful costumes reflect Rajasthani aesthetic sensibilities, while performances blend entertainment with moral education.',
+      modernRelevance: 'Traditional puppet communities face challenges as entertainment options multiply, but innovation has emerged. Contemporary puppet troupes address modern social issues, and some perform internationally. Additionally, puppet-making workshops for tourists help sustain the art form.'
+    },
+    // ... keep existing code for other folk life entries
+  ];
+
+  // Dance Forms data 
+  const danceItems = [
+    {
+      id: 'ghoomar',
+      title: 'Ghoomar',
+      image: 'https://images.unsplash.com/photo-1583002083769-0b8b36d612f8',
+      category: 'Dance Forms',
+      region: 'Rajasthan',
+      era: 'Traditional',
+      description: 'A graceful dance of swaying ghagras and spinning silhouettes, symbolizing feminine elegance and celebration.',
+      historicalBackground: 'Originating with the Bhil tribe and later embraced by Rajput royalty, Ghoomar is a graceful dance of swaying ghagras and spinning silhouettes. Initially performed during religious rituals and royal functions, its rhythmic elegance became a symbol of celebration across Rajasthan.',
+      culturalSignificance: 'Ghoomar is the heartbeat of festive Rajasthan. Often performed by brides and womenfolk during Teej and Gangaur, it signifies auspicious beginnings, feminine strength, and communal joy. Each pirouette and hand gesture is coded in folklore.',
+      modernRelevance: 'From wedding sangeets in Mumbai to dance academies in New Jersey, Ghoomar now graces global stages and cinema, notably immortalized in Bollywood\'s period epics.'
+    },
+    // ... keep existing code for other dance items
+  ];
+
   // Scripture items data
   const scriptureItems = [
     {
@@ -36,309 +185,23 @@ const getCultureItemData = (itemId: string): CultureItem | null => {
       culturalSignificance: 'They are not just read—they are lived. The Vedas guide temple architecture, fire rituals, and seasonal celebrations. The Upanishads\' probing metaphysics have shaped local storytelling, folklore, and moral codes. Even in rural shrines, their echo lingers.',
       modernRelevance: 'From gurukuls in the Aravallis to iPads in classrooms, these texts are being digitized and taught to new generations. Meditation apps quote them. Podcasts break them down. Rajasthan\'s desert wisdom now travels the globe.'
     },
-    {
-      id: 'bhagavad-gita',
-      title: 'Bhagavad Gita',
-      image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be',
-      category: 'Scriptures',
-      region: 'Ancient India',
-      era: 'Epic Period',
-      description: 'The divine dialogue between Krishna and Arjuna, offering guidance on duty, ethics, and spiritual wisdom.',
-      historicalBackground: 'Embedded in the Mahabharata, this divine dialogue between Krishna and Arjuna arrived in Rajasthan via saints, storytellers, and royal courts. It became a text of leadership, ethics, and inner war.',
-      culturalSignificance: 'The Gita is not a book—it\'s a compass. Rajput warriors, Jain merchants, and housewives alike turn to its verses for guidance. It\'s recited before battles, exams, and even court verdicts.',
-      modernRelevance: 'IAS aspirants study it. Motivational speakers quote it. Rajasthan\'s dusty scrolls now scroll across Instagram feeds, blessing the day with #ShlokOfTheDay.'
-    },
-    {
-      id: 'ramcharitmanas',
-      title: 'Ramcharitmanas',
-      image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098',
-      category: 'Scriptures',
-      region: 'North India',
-      era: '16th Century',
-      description: 'Tulsidas\'s retelling of the Ramayana in Awadhi language, widely revered and recited throughout Rajasthan.',
-      historicalBackground: 'In the 16th century, Tulsidas gave the Ramayana a lyrical rebirth in Awadhi. Rajasthan embraced it like a desert finds monsoon. Bhajan groups, temple reciters, and even grandmothers made it theirs.',
-      culturalSignificance: 'It is part lullaby, part life-guide. Women memorize it. Children hear it in bedtime tales. It\'s chanted during Ram Navami, read in mourning, and whispered for luck.',
-      modernRelevance: 'WhatsApp forwards carry its verses. YouTube livestreams of Sundarkand draw thousands every Tuesday. It\'s spiritual fuel in a digital bottle.'
-    },
-    {
-      id: 'devnarayan-mahagatha',
-      title: 'Devnarayan Mahagatha',
-      image: 'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e',
-      category: 'Scriptures',
-      region: 'Rajasthan',
-      era: 'Medieval',
-      description: 'Epic of a divine hero riding a horse, sung by Bhopa priest-singers using scrolls called Phads.',
-      historicalBackground: 'This epic of a divine hero riding a horse through Rajasthan\'s spiritual soil is sung by Bhopa priest-singers, using scrolls 15 feet long called Phads.',
-      culturalSignificance: 'It\'s performed in night-long gatherings, blending music, myth, and message. Each line is memorized, each character painted with reverence.',
-      modernRelevance: 'Now being archived by cultural ministries, and reimagined through animation for kids. Myth meets multimedia.'
-    },
-    {
-      id: 'tejaji-pabuji-phad',
-      title: 'Tejaji & Pabuji Ki Phad',
-      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840',
-      category: 'Scriptures',
-      region: 'Rajasthan',
-      era: 'Medieval',
-      description: 'Epic tales of Rajasthan\'s folk deities painted on massive scrolls and narrated by Bhopa storytellers.',
-      historicalBackground: 'Tejaji, the fearless protector against snakebites, and Pabuji, the camel-riding folk deity who defends honor and cattle, are among Rajasthan\'s most beloved epic heroes. Their tales are painted on enormous scrolls known as Phads—portable temples of pigment and story. These scrolls are not just artistic expressions but religious maps, each segment depicting scenes that Bhopa storytellers bring to life.',
-      culturalSignificance: 'These warrior deities embody the Rajasthani ideals of bravery, sacrifice, and deep connection to nature. The Phad becomes a sacred performance space as Bhopa and Bhopi narrators sing the stories, play the ravanhatta, and awaken devotion in village gatherings that last until dawn. Their devotion is so deep, devotees believe invoking their names can heal snakebite victims or bless cattle.',
-      modernRelevance: 'Today, these Phads are being digitized by museums, while folk collectives create contemporary adaptations in animation, theatre, and school plays. You\'ll find Tejaji\'s figure on truck murals, temple walls, and even as village fair mascots. Through digital storytelling apps and cultural fairs, these legends now inspire young audiences far beyond the sand dunes.'
-    },
-    {
-      id: 'jain-agamas',
-      title: 'Jain Agamas',
-      image: 'https://images.unsplash.com/photo-1473177104440-ffee2f376098',
-      category: 'Scriptures',
-      region: 'Rajasthan',
-      era: 'Ancient',
-      description: 'Spiritual treatises rooted in logic, ethics, and non-violence, preserved in Jain communities across Rajasthan.',
-      historicalBackground: 'Composed in ancient Prakrit and transmitted through a lineage of ascetic scholars, the Jain Agamas are spiritual treatises rooted in logic, ethics, and non-violence. Rajasthan, home to vibrant Jain communities in cities like Bikaner and Jaisalmer, became a stronghold of Agama preservation. The temples and monastic libraries here safeguarded these texts through centuries of turmoil and change, often by copying them onto Kagzi paper made in Sanganer.',
-      culturalSignificance: 'The Agamas are not just scripture—they\'re a way of life. Their teachings on ahimsa (non-violence), aparigraha (non-possessiveness), and satya (truth) influence daily choices, diet, business ethics, and festival observances. In Rajasthan, monks still recite these texts aloud in morning rituals, while followers participate in study groups and philosophical debates.',
-      modernRelevance: 'In an age hungry for ethical clarity, the Agamas have found new life through digitization projects led by Jain trusts. Online Jain libraries, mobile apps, and even VR temple tours now include Agama teachings. The message of compassion and restraint resonates deeply with today\'s environmentally conscious and mindfulness-seeking youth.'
-    },
-    {
-      id: 'tantric-texts',
-      title: 'Tantric Texts (Nath Sect)',
-      image: 'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e',
-      category: 'Scriptures',
-      region: 'Mount Abu and Alwar',
-      era: 'Medieval',
-      description: 'Esoteric scriptures exploring spiritual transformation through energy work, mantras, and ritual practices.',
-      historicalBackground: 'Passed down through shadowed caves, whispering forests, and ascetic silence, the Tantric scriptures of the Nath Sect have long been concealed from the public eye. Rooted in Mount Abu and Alwar, these manuals weren\'t written for scholars—they were lived by yogis who carved their path with discipline and secrecy.',
-      culturalSignificance: 'These texts go beyond rituals—they explore chakras, energy flows, mantras, and mudras as vehicles for liberation. Fire ceremonies, symbolic diagrams drawn with ash, and practices like kundalini awakening are grounded in these teachings. The Nath yogis treat them as divine codes—keys to spiritual transformation.',
-      modernRelevance: 'With the rise of global yoga and tantra studies, these once-guarded traditions are now surfacing in academic conferences, yoga teacher trainings, and holistic healing centers. Documentaries and heritage researchers are decoding these scripts, making Rajasthan a hub for seekers from LA to London.'
-    },
-    {
-      id: 'kavad-shrines',
-      title: 'Kavad Shrines',
-      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840',
-      category: 'Scriptures',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'Hand-painted wooden shrines that unfold to reveal stories from epics and mythology, carried by storytellers.',
-      historicalBackground: 'The Kavad is no ordinary shrine—it is a hand-painted, story-filled wooden temple that folds like a cabinet and unfolds into myth. Carried by the Kavadiya Bhats across Rajasthan\'s sunbaked terrain, each Kavad is a library on foot, holding episodes from Ramayana, Mahabharata, and folk epics.',
-      culturalSignificance: 'When the storyteller opens each panel, he opens a new chapter. The act of storytelling becomes devotional performance, where pilgrims gather in dusty courtyards to witness the layered visuals. It\'s a sacred theatre where the divine walks door to door.',
-      modernRelevance: 'Today, design institutes, museums, and educational kits across India have embraced the Kavad format. It\'s being revived in school storytelling programs and featured in art biennales worldwide as a model of portable narrative architecture.'
-    },
-    {
-      id: 'bhopa-bhopi',
-      title: 'Bhopa & Bhopi Traditions',
-      image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be',
-      category: 'Scriptures',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'Oral epic performers who use music and storytelling to keep Rajasthan\'s spiritual memory alive through night-long performances.',
-      historicalBackground: 'A duet of devotion and drama, the Bhopa and Bhopi are oral epic performers who preserve Rajasthan\'s spiritual memory. The Bhopa sings and plays the ravanhatta—a haunting stringed instrument—while the Bhopi joins in chorus or percussion. Together, they animate giant Phad scrolls in performances that often last entire nights.',
-      culturalSignificance: 'These performers are more than musicians—they are living vessels of divine narrative. Their songs invoke gods, heroes, and moral tales that guide rural ethics. Often barefoot, sitting by lantern-light, they are welcomed into villages like wandering sages.',
-      modernRelevance: 'With support from folk arts organizations and UNESCO, Bhopa-Bhopi duos now perform at international folk festivals and conferences. Their art is also being archived in audiovisual libraries, and young Bhopas are being trained in music academies to keep the tradition thriving.'
-    }
+    // ... keep existing code for other scripture items
   ];
 
-  // Dance forms data
-  const danceItems = [
-    {
-      id: 'ghoomar',
-      title: 'Ghoomar',
-      image: 'https://images.unsplash.com/photo-1583002083769-0b8b36d612f8',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'A graceful dance of swaying ghagras and spinning silhouettes, symbolizing feminine elegance and celebration.',
-      historicalBackground: 'Originating with the Bhil tribe and later embraced by Rajput royalty, Ghoomar is a graceful dance of swaying ghagras and spinning silhouettes. Initially performed during religious rituals and royal functions, its rhythmic elegance became a symbol of celebration across Rajasthan.',
-      culturalSignificance: 'Ghoomar is the heartbeat of festive Rajasthan. Often performed by brides and womenfolk during Teej and Gangaur, it signifies auspicious beginnings, feminine strength, and communal joy. Each pirouette and hand gesture is coded in folklore.',
-      modernRelevance: 'From wedding sangeets in Mumbai to dance academies in New Jersey, Ghoomar now graces global stages and cinema, notably immortalized in Bollywood\'s period epics.'
-    },
-    {
-      id: 'kalbeliya',
-      title: 'Kalbeliya',
-      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'A hypnotic dance performed by the Kalbeliya tribe that mimics the slithering grace of serpents.',
-      historicalBackground: 'Performed by the Kalbeliya tribe of snake charmers, this dance mimics the slithering grace of serpents. Rooted in nomadic desert life, it was once entertainment and enchantment in village squares.',
-      culturalSignificance: 'With hypnotic twirls and dramatic costumes adorned with mirror-work, Kalbeliya is both resistance and ritual—an ode to survival and mystique.',
-      modernRelevance: 'Honored by UNESCO as Intangible Cultural Heritage, Kalbeliya is now a staple at international folk festivals and fusion performances.'
-    },
-    {
-      id: 'terah-taali',
-      title: 'Terah Taali',
-      image: 'https://images.unsplash.com/photo-1501162946741-4960f990fdf4',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'A devotional seated dance performed with 13 brass cymbals tied to the body.',
-      historicalBackground: 'A devotional seated dance from the Kamad and Bhil communities, performed with 13 brass cymbals (taals) tied to the body.',
-      culturalSignificance: 'It is an act of worship and endurance, often performed in honor of Baba Ramdev. Sometimes dancers balance pots or swords on their heads while syncing cymbal strikes to devotional songs.',
-      modernRelevance: 'Featured in Rajasthan Utsav and folk heritage circuits, it attracts scholars for its complex spiritual geometry.'
-    },
-    {
-      id: 'bhavai',
-      title: 'Bhavai',
-      image: 'https://images.unsplash.com/photo-1532517891316-72a08e5c03a7',
-      category: 'Dance Forms',
-      region: 'Western Rajasthan',
-      era: 'Traditional',
-      description: 'A balancing act where dancers whirl atop swords or glass while balancing brass pots.',
-      historicalBackground: 'Emerging from the western desert regions, Bhavai is a balancing act like no other—dancers whirl atop swords or glass while balancing up to 11 brass pots.',
-      culturalSignificance: 'Bhavai embodies female resilience, precision, and grace. Performed during marriages and temple events, it blurs the line between risk and beauty.',
-      modernRelevance: 'A symbol of feminine power in international theatre and dance showcases. Often used as a metaphor in gender empowerment workshops.'
-    },
-    {
-      id: 'chari-dance',
-      title: 'Chari Dance',
-      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
-      category: 'Dance Forms',
-      region: 'Kishangarh, Rajasthan',
-      era: 'Traditional',
-      description: 'Women balance brass pots, sometimes lit with fire, celebrating the labor of collecting water.',
-      historicalBackground: 'Originating in Kishangarh, Chari celebrates the labor of collecting water—an act sacred in Rajasthan\'s arid culture.',
-      culturalSignificance: 'Women balance brass pots, sometimes lit with fire, while dancing. It honors grace, motherhood, and daily sacrifice.',
-      modernRelevance: 'Taught in schools and featured in state tourism festivals. The props are now an artisanal export item.'
-    },
-    {
-      id: 'dhol-nritya',
-      title: 'Drum Dance (Dhol Nritya)',
-      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'A pulsating tribute to valor featuring large percussion instruments strapped across the body.',
-      historicalBackground: 'Born from the warrior clans and nomadic tribes of Rajasthan, Drum Dance—known as Dhol Nritya—features large percussion instruments strapped across the body, pounded in coordination with swords, spears, or battle stances.',
-      culturalSignificance: 'A pulsating tribute to valor and strength, it was originally a part of temple processions and martial festivals. The thunder of dhols signifies power, community defense, and rhythmic unity.',
-      modernRelevance: 'Today, it electrifies stages at national parades, international tribal expos, and cultural fairs. Its dramatic presence is also popular in youth folk competitions.'
-    },
-    {
-      id: 'kathputli-puppet-dance',
-      title: 'Kathputli Puppet Dance',
-      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'Dancers mimic the stylized movements of traditional string puppets used for storytelling.',
-      historicalBackground: 'Rajasthan\'s ancient puppetry legacy inspired this human-imitating-puppet form. Dancers mimic the stylized movements of Kathputlis—traditional string puppets used for centuries to narrate myth and morality tales.',
-      culturalSignificance: 'It pays homage to the Bhatt community\'s storytelling tradition. With exaggerated jerks and frozen smiles, the dance is a nostalgic, often humorous, reflection on control, fate, and tradition.',
-      modernRelevance: 'Kathputli Dance has found its place in educational theatre, global puppet forums, and heritage tourism promotions.'
-    },
-    {
-      id: 'gair',
-      title: 'Gair',
-      image: 'https://images.unsplash.com/photo-1532517891316-72a08e5c03a7',
-      category: 'Dance Forms',
-      region: 'Mewar, Rajasthan',
-      era: 'Traditional',
-      description: 'A tribal dance where participants move in spiraling circles, wielding wooden sticks called Khanda.',
-      historicalBackground: 'From the region of Mewar, Gair evolved as a tribal dance during Holi and festive processions. Men and women move in spiraling circles, wielding wooden sticks called Khanda.',
-      culturalSignificance: 'It\'s a celebration of harvest, harmony, and collective strength. With drumbeats in the background, it becomes a visual echo of unity.',
-      modernRelevance: 'Performed in state-sponsored youth events, Gair has now become choreographed art for stage festivals and dance dramas.'
-    },
-    {
-      id: 'dandiya-raas',
-      title: 'Dandiya Raas (Rajasthani Variant)',
-      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'A dance form with narrative-rich movements where the clashing of sticks represents cosmic play.',
-      historicalBackground: 'Originating in Gujarat, Rajasthan gave it a local twist with narrative-rich movements and slower tempos. Costumes became more elaborate and steps were tied to Krishna lore.',
-      culturalSignificance: 'The clashing of sticks represents the cosmic play between Radha and Krishna. It\'s not just festive fun—it\'s symbolic devotion in motion.',
-      modernRelevance: 'Dandiya nights in metros and colleges reflect this version with folk authenticity and popular flair. Cultural festivals abroad celebrate this as the heart of Indo-Western fusions.'
-    },
-    {
-      id: 'mayur-nritya',
-      title: 'Mayur Nritya',
-      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'Dancers dress in feathered fans and masks to become peacocks, inspired by Lord Krishna\'s association with these birds.',
-      historicalBackground: 'Rooted in devotional traditions, Mayur Nritya takes inspiration from Lord Krishna\'s association with peacocks. Dancers dress in feathered fans and masks to become the bird incarnate.',
-      culturalSignificance: 'It glorifies nature, rain, and divine love—embodying themes from Puranic tales. Movements are slow, majestic, and emotion-laden.',
-      modernRelevance: 'Revived in temple festivals, eco-cultural programs, and nature-themed parades. Schools and NGOs also use it for conservation awareness.'
-    },
-    {
-      id: 'rasiya-dance',
-      title: 'Rasiya Dance',
-      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
-      category: 'Dance Forms',
-      region: 'Braj, Rajasthan',
-      era: 'Traditional',
-      description: 'A dramatic musical storytelling format involving Radha-Krishna\'s romantic escapades.',
-      historicalBackground: 'Birthed in Braj, Rasiya is a dramatic musical storytelling format involving Radha-Krishna\'s romantic escapades. Dancers often sing and act.',
-      culturalSignificance: 'Blends folklore, spirituality, and playful emotion. Performed in open-air theatres, it captivates audiences with layered verses.',
-      modernRelevance: 'Digitized into short YouTube musicals and used in youth theatre training for character and expression.'
-    },
-    {
-      id: 'matki-dance',
-      title: 'Matki Dance',
-      image: 'https://images.unsplash.com/photo-1583318432730-a19c89692732',
-      category: 'Dance Forms',
-      region: 'Madhya Pradesh / Rajasthan Border',
-      era: 'Traditional',
-      description: 'Women balance multiple clay pots while dancing, expressing balance, responsibility, and household elegance.',
-      historicalBackground: 'Originated from the tribal belts of Madhya Pradesh but seamlessly woven into Rajasthan\'s folk identity in border districts.',
-      culturalSignificance: 'Women balance multiple clay pots while dancing, expressing balance, responsibility, and elegance in household roles.',
-      modernRelevance: 'A centerpiece at rural fairs, art museums, and government-sponsored heritage days.'
-    },
-    {
-      id: 'braj-folk-dances',
-      title: 'Braj Folk Dances',
-      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
-      category: 'Dance Forms',
-      region: 'Bharatpur & Mathura, Rajasthan',
-      era: 'Traditional',
-      description: 'Dances that trace divine episodes of Krishna\'s life from the spiritual epicenter of the region.',
-      historicalBackground: 'From the spiritual epicenter of Bharatpur and Mathura, these dances trace divine episodes of Krishna\'s life.',
-      culturalSignificance: 'The dances embody devotion and storytelling, often dramatizing Krishna\'s mischief, miracles, and love.',
-      modernRelevance: 'Central to temple festivals, Krishna Janmashtami events, and devotional tourism.'
-    },
-    {
-      id: 'kathak-jaipur-gharana',
-      title: 'Kathak (Jaipur Gharana)',
-      image: 'https://images.unsplash.com/photo-1582730147924-d92f4da00474',
-      category: 'Dance Forms',
-      region: 'Jaipur, Rajasthan',
-      era: 'Classical',
-      description: 'A classical dance form known for vigor, dramatic storytelling, and intricate footwork.',
-      historicalBackground: 'Evolving under royal Rajput and Mughal courts, this Kathak lineage is known for vigor, dramatic storytelling, and footwork.',
-      culturalSignificance: 'The Jaipur Gharana emphasizes intricate rhythms, powerful pirouettes, and mythological narratives—performing both in temples and courts.',
-      modernRelevance: 'Showcased at global dance summits, taught online, and revived by young artists through fusion with modern genres.'
-    },
-    {
-      id: 'nagaras-dhol-dances',
-      title: 'Nagaras and Dhol Dances',
-      image: 'https://images.unsplash.com/photo-1533669955142-6a73332af4db',
-      category: 'Dance Forms',
-      region: 'Rajasthan',
-      era: 'Traditional',
-      description: 'Percussion traditions that were royal heralds announcing important events and celebrations.',
-      historicalBackground: 'These percussion traditions were royal heralds—announcing coronations, temple openings, or victories.',
-      culturalSignificance: 'They still signal beginnings and celebrations. Their roaring presence unites people in sound and spirit.',
-      modernRelevance: 'Sampled in folk-electronic collaborations, opening acts at festivals, and school parades.'
-    }
-  ];
-
-  // First check the scripture items
-  const scriptureItem = scriptureItems.find(item => item.id === itemId);
-  if (scriptureItem) {
-    return scriptureItem;
+  // Check all data arrays for matching item
+  const arrays = [heritageSites, architecturalBeauties, folkLifeTraditions, danceItems, scriptureItems];
+  
+  for (const array of arrays) {
+    const item = array.find(item => item.id === itemId);
+    if (item) return item;
   }
   
-  // Then check the dance items
-  const danceItem = danceItems.find(item => item.id === itemId);
-  if (danceItem) {
-    return danceItem;
-  }
-  
-  // If no match found in either array
+  // If no match found in any array
   return null;
 };
 
 const CultureItemDetail = () => {
   const { itemId } = useParams<{ itemId: string }>();
-  const [searchParams] = useSearchParams();
-  const category = searchParams.get('category') || 'scriptures';
-  
   const [item, setItem] = useState<CultureItem | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -376,8 +239,8 @@ const CultureItemDetail = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">Item Not Found</h1>
             <p className="text-gray-600 mb-6">The item you're looking for doesn't exist or has been removed.</p>
-            <Link to={`/library/${category}`} className="text-cultural-saffron hover:underline">
-              Return to {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            <Link to="/library" className="text-cultural-saffron hover:underline">
+              Return to Library
             </Link>
           </div>
         </main>
@@ -385,6 +248,9 @@ const CultureItemDetail = () => {
       </div>
     );
   }
+
+  // Get category slug for breadcrumb navigation
+  const categorySlug = item.category.toLowerCase().replace(/\s+/g, '-');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -403,9 +269,9 @@ const CultureItemDetail = () => {
           <div className="absolute inset-0 bg-black bg-opacity-60 z-10"></div>
           <div className="container mx-auto px-4 h-full flex items-end pb-12 relative z-20">
             <div className="text-white max-w-3xl">
-              <Link to={`/library/${category}`} className="inline-flex items-center text-white/80 hover:text-white mb-4">
+              <Link to="/library" className="inline-flex items-center text-white/80 hover:text-white mb-4">
                 <ArrowLeft className="h-4 w-4 mr-1" />
-                <span>Back to {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                <span>Back to Library</span>
               </Link>
               <h1 className="text-4xl md:text-5xl font-bold mb-2">{item.title}</h1>
               <p className="text-xl text-white/90">{item.description}</p>
@@ -434,8 +300,8 @@ const CultureItemDetail = () => {
                 <li>
                   <div className="flex items-center">
                     <ChevronRight className="w-4 h-4 text-gray-400" />
-                    <Link to={`/library/${category}`} className="ml-1 text-sm text-gray-500 hover:text-cultural-saffron">
-                      {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    <Link to={`/library/${categorySlug}`} className="ml-1 text-sm text-gray-500 hover:text-cultural-saffron">
+                      {item.category}
                     </Link>
                   </div>
                 </li>
@@ -443,7 +309,7 @@ const CultureItemDetail = () => {
                   <div className="flex items-center">
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                     <span className="ml-1 text-sm text-cultural-saffron font-medium">
-                      {item.title}
+                      {item.title.split(':')[0]}
                     </span>
                   </div>
                 </li>
@@ -485,7 +351,7 @@ const CultureItemDetail = () => {
                       <p className="text-xl lead font-medium text-gray-700">{item.description}</p>
                       
                       <div className="bg-gray-50 border border-gray-100 rounded-lg p-6 mt-6">
-                        <h3 className="text-lg font-semibold mb-3">About {item.title}</h3>
+                        <h3 className="text-lg font-semibold mb-3">About {item.title.split(':')[0]}</h3>
                         <ul className="space-y-3">
                           <li className="flex items-start">
                             <Tag className="h-5 w-5 text-cultural-saffron mr-3 mt-1 flex-shrink-0" />
@@ -550,7 +416,7 @@ const CultureItemDetail = () => {
                     <h3 className="text-lg font-bold mb-4">Explore More</h3>
                     <p className="text-gray-600 mb-4">Discover other items in the {item.category} category to deepen your understanding of Indian culture.</p>
                     <Link 
-                      to={`/library/${category}`}
+                      to={`/library/${categorySlug}`}
                       className="inline-flex items-center text-cultural-saffron hover:underline"
                     >
                       <BookOpen className="h-4 w-4 mr-2" />
@@ -562,27 +428,27 @@ const CultureItemDetail = () => {
                     <h3 className="text-lg font-bold mb-4">Related Categories</h3>
                     <ul className="space-y-2">
                       <li>
-                        <Link to="/library/scriptures" className="text-cultural-saffron hover:underline flex items-center">
+                        <Link to="/library/heritage-sites" className="text-cultural-saffron hover:underline flex items-center">
                           <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Scriptures</span>
+                          <span>Heritage Sites</span>
                         </Link>
                       </li>
                       <li>
-                        <Link to="/library/art-forms" className="text-cultural-saffron hover:underline flex items-center">
+                        <Link to="/library/architectural-beauties" className="text-cultural-saffron hover:underline flex items-center">
                           <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Art Forms</span>
+                          <span>Architectural Beauties</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link to="/library/folk-life-traditions" className="text-cultural-saffron hover:underline flex items-center">
+                          <ChevronRight className="h-4 w-4 mr-1" />
+                          <span>Folk Life & Traditions</span>
                         </Link>
                       </li>
                       <li>
                         <Link to="/library/dance-forms" className="text-cultural-saffron hover:underline flex items-center">
                           <ChevronRight className="h-4 w-4 mr-1" />
                           <span>Dance Forms</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/library/festivals" className="text-cultural-saffron hover:underline flex items-center">
-                          <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Festivals</span>
                         </Link>
                       </li>
                     </ul>
