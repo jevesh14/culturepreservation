@@ -412,18 +412,6 @@ const CultureItemDetail = () => {
               {/* Sidebar */}
               <div>
                 <div className="sticky top-6">
-                  <div className="bg-cultural-saffron/5 border border-cultural-saffron/20 rounded-xl p-6 mb-6">
-                    <h3 className="text-lg font-bold mb-4">Explore More</h3>
-                    <p className="text-gray-600 mb-4">Discover other items in the {item.category} category to deepen your understanding of Indian culture.</p>
-                    <Link 
-                      to={`/library/${categorySlug}`}
-                      className="inline-flex items-center text-cultural-saffron hover:underline"
-                    >
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      View all {item.category}
-                    </Link>
-                  </div>
-                  
                   <div className="bg-gray-50 rounded-xl p-6">
                     <h3 className="text-lg font-bold mb-4">Related Categories</h3>
                     <ul className="space-y-2">

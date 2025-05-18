@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Search, Filter, PlusCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Search, Filter } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChatWithAI from '../components/ChatWithAI';
@@ -167,15 +166,8 @@ const Discussion = () => {
         {/* Empty Discussion Topics */}
         <section className="py-8">
           <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-6">
+            <div className="mb-6">
               <h2 className="text-2xl font-bold">Discussion Topics</h2>
-              <Link 
-                to="/discussion/new" 
-                className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors flex items-center"
-              >
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Start New Topic
-              </Link>
             </div>
             
             <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
@@ -184,17 +176,8 @@ const Discussion = () => {
               </div>
               <h3 className="text-xl font-bold mb-2">No discussions yet</h3>
               <p className="text-gray-600 mb-6">
-                Be the first to start a discussion about Indian culture and heritage
+                Check back later for discussions about Indian culture and heritage
               </p>
-              <div className="flex justify-center">
-                <Link 
-                  to="/discussion/new" 
-                  className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors flex items-center"
-                >
-                  <PlusCircle className="h-4 w-4 mr-2" />
-                  Start New Discussion
-                </Link>
-              </div>
             </div>
           </div>
         </section>
