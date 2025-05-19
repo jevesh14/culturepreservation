@@ -9,6 +9,14 @@ interface BreadcrumbsProps {
 }
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
+  // Get the main title without any subtitle
+  const mainTitle = item.title?.split(':')?.[0] || item.title;
+  
+  // Safely get category for the URL, defaulting to a fallback if needed
+  const categoryUrl = item.category 
+    ? `/library/${item.category.toLowerCase().replace(/\s+/g, '-')}` 
+    : '/library';
+
   return (
     <section className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4 py-3">
@@ -32,7 +40,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
                 <div className="flex items-center">
                   <ChevronRight className="w-4 h-4 text-gray-400" />
                   <Link 
-                    to={`/library/${item.category.toLowerCase().replace(/\s+/g, '-')}`} 
+                    to={categoryUrl} 
                     className="ml-1 text-sm text-gray-500 hover:text-cultural-saffron"
                   >
                     {item.category}
@@ -44,7 +52,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
               <div className="flex items-center">
                 <ChevronRight className="w-4 h-4 text-gray-400" />
                 <span className="ml-1 text-sm font-medium text-cultural-saffron">
-                  {item.title?.split(':')?.[0] || item.title}
+                  {mainTitle}
                 </span>
               </div>
             </li>

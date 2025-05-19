@@ -97,6 +97,16 @@ const architecturalBeauties: CultureItem[] = [
     historicalBackground: "Built between 1800 and 1860 by Guman Chand Patwa and his five sons, who were wealthy traders of gold and silver brocade, the Patwon Ki Haveli complex comprises five adjacent mansions. The first and largest haveli took 55 years to complete.",
     culturalSignificance: "These havelis showcase the pinnacle of Jaisalmer's architectural style with intricate yellow sandstone carvings, latticework balconies, and mirror-inlaid chambers. The designs incorporate both traditional motifs and folk influences, reflecting the merchant class's growing prominence.",
     modernRelevance: "Two of the havelis now function as museums highlighting the craftsmanship of the era. Contemporary architects study their passive cooling systems and light-capturing designs as sustainable building practices."
+  },
+  {
+    id: 'umaid-bhawan',
+    title: 'Umaid Bhawan: The Art Deco Palace',
+    image: 'https://images.unsplash.com/photo-1576487236230-6aa2b15d7d90',
+    category: 'Architectural Beauties',
+    region: 'Jodhpur, Rajasthan',
+    era: '20th Century',
+    style: 'Indo-Deco',
+    description: 'One of the world\'s largest private residences, part palace, part hotel, and part museum, built with golden-yellow sandstone.'
   }
   // Additional architectural beauties would be here
 ];

@@ -44,10 +44,23 @@ const CultureItemDetail = () => {
         // Log the item ID we're fetching
         console.log(`Fetching data for ID: ${itemId}`);
         
-        const data = getCultureItemData(itemId);
+        // Get item from the data source
+        let data = getCultureItemData(itemId);
         
+        // Check if we found any data
         if (data) {
           console.log(`Found data for ID: ${itemId}`, data);
+          
+          // Ensure all required fields exist with defaults if missing
+          data = {
+            ...data,
+            region: data.region || 'Various Regions',
+            era: data.era || 'Traditional',
+            historicalBackground: data.historicalBackground || '',
+            culturalSignificance: data.culturalSignificance || '',
+            modernRelevance: data.modernRelevance || ''
+          };
+          
           setItem(data);
           
           // Show success toast
@@ -64,7 +77,8 @@ const CultureItemDetail = () => {
           const availableIds = [
             'amber-fort', 'jaisalmer-fort', 'mehrangarh-fort', 'hawa-mahal', 
             'jal-mahal', 'patwon-ki-haveli', 'bishnoi', 'pushkar-fair',
-            'rajasthani-puppet', 'phad-painting', 'ghoomar', 'vedas-upanishads'
+            'rajasthani-puppet', 'phad-painting', 'ghoomar', 'vedas-upanishads',
+            'umaid-bhawan'
           ];
           
           console.log('Available IDs:', availableIds);
