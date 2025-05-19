@@ -52,8 +52,8 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
         </nav>
       </div>
       
-      {/* Add custom scrollbar hiding styles */}
-      <style jsx="true">{`
+      <style>
+        {`
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -61,7 +61,8 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-      `}</style>
+        `}
+      </style>
     </section>
   );
 };

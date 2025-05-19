@@ -141,6 +141,19 @@ const folkLifeTraditions: CultureItem[] = [
     historicalBackground: "The art of Kathputli (wooden puppet) dates back over a thousand years in Rajasthan. Traditionally performed by the Bhat community, these portable puppet shows traveled from village to village, spreading stories and news before modern communication existed.",
     culturalSignificance: "The puppets represent archetypal characters from folklore—the dancing girl, the magician, the king, and the queen. Their exaggerated features and colorful costumes reflect Rajasthani aesthetic sensibilities, while performances blend entertainment with moral education.",
     modernRelevance: "Traditional puppet communities face challenges as entertainment options multiply, but innovation has emerged. Contemporary puppet troupes address modern social issues, and some perform internationally. Additionally, puppet-making workshops for tourists help sustain the art form."
+  },
+  {
+    id: 'phad-painting',
+    title: 'Phad: Scroll Painting Tradition',
+    image: 'https://images.unsplash.com/photo-1580136579312-94651dfd596d',
+    category: 'Folk Life & Traditions',
+    region: 'Bhilwara, Rajasthan',
+    era: 'Medieval',
+    style: 'Art',
+    description: 'Religious scrolls depicting heroic deities like Pabuji and Devnarayan, used by Bhopa priest-singers for narrative performances.',
+    historicalBackground: "Dating back over 700 years, Phad painting is a traditional religious scroll painting from Rajasthan. These magnificent scrolls, often 15-30 feet in length, function as portable temples that narrate the heroic deeds of local deities like Pabuji and Devnarayan through vibrant imagery and dramatic storytelling.",
+    culturalSignificance: "Phad paintings serve as both religious artifacts and narrative tools. Traditionally, the Bhopa and Bhopi (husband-wife performers) would unfurl these scrolls at night, using an oil lamp to illuminate different sections while singing ballads that brought the stories to life, preserving oral traditions and cultural identity across generations.",
+    modernRelevance: "Though traditional Phad performances are becoming rare, contemporary artists are revitalizing this art form with innovative subjects and techniques. Today, smaller Phad paintings have become popular souvenirs, and workshops help preserve this distinctive tradition while adapting it for modern audiences and collectors."
   }
   // Additional folk life entries would be here
 ];
@@ -188,6 +201,10 @@ export const getCultureItemData = (itemId: string): CultureItem | null => {
     const item = array.find(item => item.id === itemId);
     if (item) return item;
   }
+  
+  // Log better debugging info
+  console.log(`Searched for item with ID: ${itemId}, but found no matches`);
+  console.log("Available IDs:", arrays.flat().map(item => item.id));
   
   // If no match found in any array
   return null;

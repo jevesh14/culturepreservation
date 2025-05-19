@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChatWithAI from '../components/ChatWithAI';
@@ -18,6 +18,7 @@ const CultureItemDetail = () => {
   const [item, setItem] = useState<CultureItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!itemId) {
@@ -40,14 +41,35 @@ const CultureItemDetail = () => {
         // Small delay to simulate network request
         await new Promise(resolve => setTimeout(resolve, 500));
         
+        // Log the item ID we're fetching
+        console.log(`Fetching data for ID: ${itemId}`);
+        
         const data = getCultureItemData(itemId);
-        console.log(`Fetching data for ID: ${itemId}`, data);
         
         if (data) {
+          console.log(`Found data for ID: ${itemId}`, data);
           setItem(data);
+          
+          // Show success toast
+          toast({
+            title: "Item Loaded",
+            description: `Successfully loaded: ${data.title}`,
+            variant: "default"
+          });
         } else {
           setError(true);
           console.error(`No data found for ID: ${itemId}`);
+          
+          // Additional logging to help debug
+          const availableIds = [
+            'amber-fort', 'jaisalmer-fort', 'mehrangarh-fort', 'hawa-mahal', 
+            'jal-mahal', 'patwon-ki-haveli', 'bishnoi', 'pushkar-fair',
+            'rajasthani-puppet', 'phad-painting', 'ghoomar', 'vedas-upanishads'
+          ];
+          
+          console.log('Available IDs:', availableIds);
+          console.log('Requested ID exists in available IDs:', availableIds.includes(itemId));
+          
           toast({
             title: "Item Not Found",
             description: `We couldn't find an item with ID: ${itemId}`,
@@ -68,7 +90,7 @@ const CultureItemDetail = () => {
     };
 
     fetchData();
-  }, [itemId]);
+  }, [itemId, navigate]);
 
   if (loading) {
     return <LoadingState />;
