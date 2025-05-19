@@ -16,23 +16,49 @@ const CultureItemDetail = () => {
   const { itemId } = useParams<{ itemId: string }>();
   const [item, setItem] = useState<CultureItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (itemId) {
-      // Simulating API call
-      setTimeout(() => {
-        const data = getCultureItemData(itemId);
-        setItem(data);
-        setLoading(false);
-      }, 500);
+    if (!itemId) {
+      setError(true);
+      setLoading(false);
+      return;
     }
+
+    // Simulating API call with timeout
+    const fetchData = async () => {
+      setLoading(true);
+      setError(false);
+      
+      try {
+        // Small delay to simulate network request
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const data = getCultureItemData(itemId);
+        console.log(`Fetching data for ID: ${itemId}`, data);
+        
+        if (data) {
+          setItem(data);
+        } else {
+          setError(true);
+          console.error(`No data found for ID: ${itemId}`);
+        }
+      } catch (err) {
+        console.error('Error fetching culture item:', err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [itemId]);
 
   if (loading) {
     return <LoadingState />;
   }
 
-  if (!item) {
+  if (error || !item) {
     return <ItemNotFound />;
   }
 

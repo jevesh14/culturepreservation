@@ -42,20 +42,25 @@ const CultureCard = ({
     const colorMap: Record<string, string> = {
       'Festivals': 'bg-cultural-saffron',
       'Art Forms': 'bg-cultural-lotus',
+      'Dance Forms': 'bg-cultural-peacock',
       'Dance': 'bg-cultural-peacock',
       'Music': 'bg-cultural-blue',
       'Architecture': 'bg-cultural-spice',
+      'Architectural Beauties': 'bg-cultural-spice',
       'Scriptures': 'bg-cultural-green',
       'Cuisine': 'bg-cultural-mehendi',
       'Clothing': 'bg-cultural-maroon',
-      'Philosophy': 'bg-cultural-gold'
+      'Philosophy': 'bg-cultural-gold',
+      'Heritage Sites': 'bg-cultural-maroon',
+      'Folk Life & Traditions': 'bg-cultural-blue'
     };
     
     return colorMap[category] || 'bg-cultural-saffron';
   };
 
-  // Always use the direct path to the culture item detail with the ID
-  const linkPath = `/culture/${id}`;
+  // Ensure we have a valid ID for the link
+  const safeId = id?.trim() || '';
+  const linkPath = safeId ? `/culture/${safeId}` : '/library';
   
   // Check if we have detailed content to show
   const hasDetailedContent = historicalBackground || culturalSignificance || modernRelevance;
@@ -72,6 +77,10 @@ const CultureCard = ({
             src={image} 
             alt={title} 
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+            onError={(e) => {
+              // Fallback image if the main image fails to load
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
@@ -101,7 +110,7 @@ const CultureCard = ({
               Era: {era}
             </p>
           )}
-          <p className="text-gray-600 text-sm">{description}</p>
+          <p className="text-gray-600 text-sm line-clamp-3">{description}</p>
           
           {hasDetailedContent && (
             <div className={`absolute bottom-0 left-0 h-1 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 ${getCategoryColor()}`}></div>
