@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, User, Edit, Bell, Shield, LogOut } from 'lucide-react';
@@ -14,8 +13,9 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
 
-  // If not authenticated, show the mobile auth option
+  // If not authenticated, show the username auth option
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -30,15 +30,41 @@ const Profile = () => {
               <p className="text-gray-600">Access your profile and preferences</p>
             </div>
             
-            <Button 
-              onClick={() => navigate('/auth/mobile')}
-              className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
-            >
-              <span className="flex items-center">
-                Sign in with Mobile Number
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </span>
-            </Button>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Username</label>
+                <Input 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  className="w-full"
+                />
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  if (username.trim()) {
+                    setIsAuthenticated(true);
+                    toast({
+                      title: "Welcome back!",
+                      description: "You have successfully signed in",
+                    });
+                  } else {
+                    toast({
+                      title: "Username required",
+                      description: "Please enter a username to continue",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+                className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
+              >
+                <span className="flex items-center">
+                  Sign in
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </span>
+              </Button>
+            </div>
 
             <div className="mt-8 pt-6 border-t border-gray-200 text-center">
               <p className="text-sm text-gray-600">
@@ -67,11 +93,11 @@ const Profile = () => {
                 <div className="flex flex-col md:flex-row items-center md:items-end -mt-12 space-y-4 md:space-y-0 md:space-x-6">
                   <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg">
                     <div className="h-full w-full rounded-full bg-gradient-to-br from-cultural-peacock to-cultural-blue flex items-center justify-center text-white text-3xl font-semibold">
-                      U
+                      {username ? username.charAt(0).toUpperCase() : "U"}
                     </div>
                   </div>
                   <div className="text-center md:text-left">
-                    <h1 className="text-2xl font-bold">User</h1>
+                    <h1 className="text-2xl font-bold">{username || "User"}</h1>
                     <p className="text-gray-600">Cultural enthusiast</p>
                   </div>
                   <div className="ml-auto">
@@ -99,15 +125,15 @@ const Profile = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Name</label>
-                        <Input placeholder="Your name" defaultValue="User" />
+                        <Input placeholder="Your name" defaultValue={username || "User"} />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Email</label>
                         <Input placeholder="Your email" defaultValue="user@example.com" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Phone</label>
-                        <Input placeholder="Your phone number" defaultValue="+91 98765 43210" disabled />
+                        <label className="text-sm font-medium text-gray-700">Username</label>
+                        <Input placeholder="Your username" defaultValue={username} />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-700">Location</label>
@@ -202,11 +228,11 @@ const Profile = () => {
                 
                 <TabsContent value="security" className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Mobile Number</h3>
+                    <h3 className="text-lg font-medium mb-4">Username</h3>
                     <div className="flex items-center justify-between pb-4 border-b">
                       <div>
-                        <p className="font-medium">+91 98765 43210</p>
-                        <p className="text-sm text-gray-500">Your verified phone number</p>
+                        <p className="font-medium">{username || "User"}</p>
+                        <p className="text-sm text-gray-500">Your login username</p>
                       </div>
                       <Button variant="outline" size="sm">
                         Change

@@ -1,6 +1,7 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Search, Filter } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Search } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChatWithAI from '../components/ChatWithAI';
@@ -15,12 +16,10 @@ const categories = [
   'Regional Spotlights'
 ];
 
-// Sort options
+// Sort options - reduced to only Trending and Recent
 const sortOptions = [
   'Trending',
-  'Recent',
-  'Most Liked',
-  'Most Discussed'
+  'Recent'
 ];
 
 const Discussion = () => {
@@ -87,7 +86,7 @@ const Discussion = () => {
                 ))}
               </div>
               
-              {/* Sort Dropdown */}
+              {/* Sort Dropdown - only Trending and Recent */}
               <div className="flex items-center mt-3 md:mt-0">
                 <label className="text-sm text-gray-600 mr-2">Sort by:</label>
                 <select
