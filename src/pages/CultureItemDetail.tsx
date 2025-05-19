@@ -11,6 +11,7 @@ import ItemDetailTabs from '../components/culture-item/ItemDetailTabs';
 import RelatedCategories from '../components/culture-item/RelatedCategories';
 import LoadingState from '../components/culture-item/LoadingState';
 import ItemNotFound from '../components/culture-item/ItemNotFound';
+import { toast } from '@/hooks/use-toast';
 
 const CultureItemDetail = () => {
   const { itemId } = useParams<{ itemId: string }>();
@@ -22,10 +23,15 @@ const CultureItemDetail = () => {
     if (!itemId) {
       setError(true);
       setLoading(false);
+      console.error('No itemId provided in URL parameters');
+      toast({
+        title: "Error",
+        description: "No item ID was provided",
+        variant: "destructive"
+      });
       return;
     }
 
-    // Simulating API call with timeout
     const fetchData = async () => {
       setLoading(true);
       setError(false);
@@ -42,10 +48,20 @@ const CultureItemDetail = () => {
         } else {
           setError(true);
           console.error(`No data found for ID: ${itemId}`);
+          toast({
+            title: "Item Not Found",
+            description: `We couldn't find an item with ID: ${itemId}`,
+            variant: "destructive"
+          });
         }
       } catch (err) {
         console.error('Error fetching culture item:', err);
         setError(true);
+        toast({
+          title: "Error",
+          description: "Failed to load the requested item",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
@@ -71,11 +87,11 @@ const CultureItemDetail = () => {
         <Breadcrumbs item={item} />
         
         {/* Main content */}
-        <section className="py-12">
+        <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main content column */}
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
                 <ItemDetailTabs item={item} />
               </div>
               
