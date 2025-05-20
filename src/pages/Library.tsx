@@ -8,7 +8,7 @@ import FilterChips from '../components/FilterChips';
 import ChatWithAI from '../components/ChatWithAI';
 
 // Sample data for library content
-const libraryData = [
+export const libraryData = [
   // Heritage Sites
   {
     id: 'amber-fort',

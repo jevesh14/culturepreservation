@@ -34,7 +34,7 @@ interface CategoryData {
 }
 
 // Placeholder data - you'll replace this with real data later
-const getCategoryData = (categoryId: string): CategoryData => {
+export const getCategoryData = (categoryId: string): CategoryData => {
   // Scripture items data
   const scriptureItems = [
     {
