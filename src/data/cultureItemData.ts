@@ -106,7 +106,10 @@ const architecturalBeauties: CultureItem[] = [
     region: 'Jodhpur, Rajasthan',
     era: '20th Century',
     style: 'Indo-Deco',
-    description: 'One of the world\'s largest private residences, part palace, part hotel, and part museum, built with golden-yellow sandstone.'
+    description: 'One of the world\'s largest private residences, part palace, part hotel, and part museum, built with golden-yellow sandstone.',
+    historicalBackground: "Construction of Umaid Bhawan began in 1929 during a severe drought as a public relief project, providing employment to thousands of workers. Completed in 1943, this magnificent palace was built by Maharaja Umaid Singh as the world's sixth-largest private residence with 347 rooms.",
+    culturalSignificance: "The palace represents a unique blend of traditional Indian and Art Deco styles, designed by renowned British architect Henry Lanchester. Its golden sandstone exterior, massive dome, and ornate interiors with murals by Polish artist Stefan Norblin showcase a distinctive Indo-European aesthetic.",
+    modernRelevance: "Today, Umaid Bhawan remains partly a residence of the royal family, while also functioning as a luxury heritage hotel and museum. It stands as a living testament to Rajasthan's royal heritage, drawing visitors from around the world to experience its grandeur."
   }
   // Additional architectural beauties would be here
 ];
@@ -181,8 +184,31 @@ const danceItems: CultureItem[] = [
     historicalBackground: "Originating with the Bhil tribe and later embraced by Rajput royalty, Ghoomar is a graceful dance of swaying ghagras and spinning silhouettes. Initially performed during religious rituals and royal functions, its rhythmic elegance became a symbol of celebration across Rajasthan.",
     culturalSignificance: "Ghoomar is the heartbeat of festive Rajasthan. Often performed by brides and womenfolk during Teej and Gangaur, it signifies auspicious beginnings, feminine strength, and communal joy. Each pirouette and hand gesture is coded in folklore.",
     modernRelevance: "From wedding sangeets in Mumbai to dance academies in New Jersey, Ghoomar now graces global stages and cinema, notably immortalized in Bollywood's period epics."
+  },
+  {
+    id: 'kathak',
+    title: 'Kathak: Stories in Motion',
+    image: 'https://images.unsplash.com/photo-1547153760-18fc86324498',
+    category: 'Dance Forms',
+    region: 'Northern India',
+    era: 'Ancient to Modern',
+    description: 'An elegant classical dance form that combines intricate footwork with expressive storytelling.',
+    historicalBackground: "Kathak evolved from the ancient tradition of storytellers or Kathakars who recited epic tales with music. It developed in Hindu temples and later flourished in Mughal courts, absorbing Persian influences to create a unique synthesis of Hindu and Islamic cultural expressions.",
+    culturalSignificance: "The dance is characterized by intricate footwork (tatkar), graceful pirouettes (chakkar), and expressive gestures (mudras). Kathak dancers are known for their ability to narrate complex stories through dance, creating rhythmic patterns with ghungroo (ankle bells) that complement tabla compositions.",
+    modernRelevance: "Today, Kathak is performed globally, with renowned dancers creating contemporary interpretations while preserving traditional techniques. Its influence extends to Bollywood choreography, and cultural exchange programs often feature Kathak as a representation of India's classical heritage."
+  },
+  {
+    id: 'bhavai',
+    title: 'Bhavai: The Balance of Grace',
+    image: 'https://images.unsplash.com/photo-1535515384173-d74166f26820',
+    category: 'Dance Forms',
+    region: 'Rajasthan',
+    era: 'Traditional',
+    description: 'A remarkable folk dance where women balance multiple earthen pots on their heads while performing graceful movements.',
+    historicalBackground: "Bhavai originated among the nomadic communities of Rajasthan as an expression of the daily hardship of carrying water across desert landscapes. What began as a necessary skill evolved into an art form that showcases the grace, balance, and strength of desert women.",
+    culturalSignificance: "Traditionally performed during festivals and celebrations, Bhavai represents the resilience of Rajasthani women. Dancers balance up to eight or nine earthen pots (sometimes with a lit lamp on top) while dancing on the rim of a brass plate or sometimes even on glass bottles.",
+    modernRelevance: "While maintaining its traditional roots, Bhavai has become a popular cultural performance at tourism festivals, hotels, and international cultural exchanges, bringing attention to the artistic heritage of Rajasthan."
   }
-  // Additional dance items would be here
 ];
 
 // Scripture items data
@@ -198,14 +224,130 @@ const scriptureItems: CultureItem[] = [
     historicalBackground: "These ancient Sanskrit texts—composed over 3,000 years ago—are the fountainhead of Indian spiritual and philosophical thought. In Rajasthan, they have been preserved not just in books, but in sound—chanted with precision by Brahmin families across centuries. Their oral recitation, passed like sacred flame, is an art of breath, rhythm, and memory.",
     culturalSignificance: "They are not just read—they are lived. The Vedas guide temple architecture, fire rituals, and seasonal celebrations. The Upanishads' probing metaphysics have shaped local storytelling, folklore, and moral codes. Even in rural shrines, their echo lingers.",
     modernRelevance: "From gurukuls in the Aravallis to iPads in classrooms, these texts are being digitized and taught to new generations. Meditation apps quote them. Podcasts break them down. Rajasthan's desert wisdom now travels the globe."
+  },
+  {
+    id: 'bhagavad-gita',
+    title: 'Bhagavad Gita: Song of the Divine',
+    image: 'https://images.unsplash.com/photo-1558345035-a51b42f3e6a0',
+    category: 'Scriptures',
+    region: 'India',
+    era: 'Ancient (part of Mahabharata)',
+    description: 'A 700-verse Sanskrit scripture that presents a synthesis of Hindu ideas about dharma, theistic bhakti, and the yogic ideals of moksha.',
+    historicalBackground: "Composed approximately between the 5th and 2nd centuries BCE, the Bhagavad Gita forms a part of the epic Mahabharata. It records the conversation between Prince Arjuna and Lord Krishna before the Kurukshetra War, addressing moral and philosophical dilemmas about duty, righteousness, and spiritual fulfillment.",
+    culturalSignificance: "The Gita presents multiple paths to spiritual realization—karma yoga (selfless action), bhakti yoga (devotion), and jnana yoga (knowledge)—unifying diverse spiritual traditions. Its teachings have influenced leaders from Gandhi to Thoreau, offering guidance on ethical decision-making and inner peace.",
+    modernRelevance: "Today, the Gita remains a source of inspiration across cultural and religious boundaries. Its principles are applied in leadership seminars, mindfulness practices, and environmental ethics. Modern commentaries continue to find relevant applications of its ancient wisdom to contemporary challenges."
+  },
+  {
+    id: 'ramayana',
+    title: 'Ramayana: The Journey of Virtue',
+    image: 'https://images.unsplash.com/photo-1598726668148-99946ef1cb42',
+    category: 'Scriptures',
+    region: 'India',
+    era: 'Ancient (5th century BCE)',
+    description: 'An ancient Indian epic that narrates the journey of Rama to rescue his wife Sita from the demon king Ravana.',
+    historicalBackground: "Attributed to the sage Valmiki, the Ramayana was composed around the 5th century BCE, though its oral tradition may be much older. In Rajasthan, it has been preserved through various regional adaptations, including the vibrant Mewari style of manuscript painting that depicts scenes from the epic.",
+    culturalSignificance: "The Ramayana serves as a moral and cultural compass, highlighting ideals of righteousness (dharma), loyalty, brotherhood, and the triumph of good over evil. Rajasthan's folk traditions include Ramlila performances, puppet shows, and phad paintings that bring the epic to life.",
+    modernRelevance: "Beyond religious significance, the Ramayana continues to influence literature, art, and media. Its themes are reinterpreted in contemporary novels, television series, and films, while its ethical dilemmas provide material for discussions on governance, gender relations, and environmental ethics."
   }
-  // Additional scripture items would be here
+];
+
+// Music items data
+const musicItems: CultureItem[] = [
+  {
+    id: 'manganiyar',
+    title: 'Manganiyar: Desert Music Maestros',
+    image: 'https://images.unsplash.com/photo-1541689221361-ad95003448dc',
+    category: 'Music',
+    region: 'Western Rajasthan',
+    era: 'Traditional',
+    description: 'A Muslim community of hereditary professional musicians whose performances are an integral part of Rajasthani folk traditions.',
+    historicalBackground: "The Manganiyars have been court musicians for Rajput patrons for centuries, despite being Muslim by faith. Their tradition dates back to the 12th century, and they have maintained a unique patron-client relationship with specific Hindu families across generations.",
+    culturalSignificance: "Their music represents a stunning synthesis of Sufi influences and Hindu devotional themes. They are known for their complex rhythms, haunting melodies played on the kamaycha (stringed instrument), and powerful vocals that can shift from gentle whispers to soaring projections that carry across desert dunes.",
+    modernRelevance: "In recent decades, Manganiyars have gained international recognition through projects like 'Manganiyar Seduction' and collaborations with global musicians. Their performances at world music festivals have brought this ancient desert tradition to global audiences while creating new economic opportunities for the community."
+  },
+  {
+    id: 'kalbelia',
+    title: 'Kalbelia: Songs of the Serpent Dancers',
+    image: 'https://images.unsplash.com/photo-1552306062-29a5560e1c31',
+    category: 'Music',
+    region: 'Rajasthan',
+    era: 'Traditional',
+    description: 'The distinctive music tradition of the Kalbelia community, featuring the haunting sounds of the pungi and percussion instruments.',
+    historicalBackground: "Associated with the snake-charmer community, Kalbelia music evolved from the nomadic lifestyle of this tribe. Originally performed as part of their snake-handling traditions, the music gained independence as a cultural expression when the community had to find alternative livelihoods after wildlife protection laws banned snake charming.",
+    culturalSignificance: "The music is characterized by the distinctive sound of the pungi (wind instrument), complemented by the dholak (drum) and khanjari (percussion). The hypnotic rhythms are closely connected to the swirling dance movements that mimic snake movements, creating an integrated artistic expression.",
+    modernRelevance: "UNESCO recognized Kalbelia song and dance as an Intangible Cultural Heritage in 2010. This has led to increased preservation efforts and opportunities for Kalbelia musicians to perform nationally and internationally, revitalizing a tradition that was at risk of disappearing."
+  }
+];
+
+// Art Forms data
+const artItems: CultureItem[] = [
+  {
+    id: 'miniature-painting',
+    title: 'Miniature Painting: Tiny Treasures',
+    image: 'https://images.unsplash.com/photo-1579762593175-20226054cad0',
+    category: 'Art Forms',
+    region: 'Rajasthan',
+    era: '16th-19th Century',
+    description: 'Exquisite small-format paintings created with delicate brushwork and natural pigments, depicting court scenes, legends, and daily life.',
+    historicalBackground: "Rajasthan's miniature painting tradition flourished under royal patronage, developing distinct schools including Mewar, Bundi, Kishangarh, and Marwar styles. These paintings emerged when the Mughal empire began to decline, as court artists sought new patrons in Rajput kingdoms.",
+    culturalSignificance: "These paintings provide invaluable insights into historical fashion, architecture, and social customs. The Kishangarh school is famous for its idealized portrayal of beauty with elongated features, while the Bundi style is known for lush landscapes and vibrant colors that capture Rajasthan's aesthetic sensibilities.",
+    modernRelevance: "Contemporary artists continue the tradition, though often with modern themes and materials. Miniature painting workshops attract tourists and art enthusiasts, while collectors worldwide seek these pieces as investment art, ensuring the economic viability of the tradition."
+  },
+  {
+    id: 'blue-pottery',
+    title: 'Blue Pottery: Azure Artistry',
+    image: 'https://images.unsplash.com/photo-1608020932658-0754430696a8',
+    category: 'Art Forms',
+    region: 'Jaipur, Rajasthan',
+    era: '14th Century onwards',
+    description: 'A distinctive turquoise blue pottery made from quartz, not clay, with Persian and Chinese influences.',
+    historicalBackground: "Introduced to India via Persia and Afghanistan, blue pottery found patronage in Jaipur during the reign of Maharaja Ram Singh II (1835-1880). The technique almost disappeared in the early 20th century but was revived through dedicated efforts by individuals like Kripal Singh Shekhawat.",
+    culturalSignificance: "Unlike traditional pottery, Jaipur blue pottery uses quartz stone powder instead of clay, creating a distinctive semi-transparent finish. The vivid cobalt blue designs against white backgrounds reflect Persian aesthetics, while the glazing technique shows Chinese influences, embodying Rajasthan's history as a cultural crossroads.",
+    modernRelevance: "Blue pottery has found new markets globally as decorative art and functional items. Innovations include contemporary design patterns and new product categories like bathroom accessories and lighting fixtures, while maintaining traditional production techniques."
+  }
+];
+
+// Cuisine items data
+const cuisineItems: CultureItem[] = [
+  {
+    id: 'dal-bati-churma',
+    title: 'Dal Bati Churma: Desert Delicacy',
+    image: 'https://images.unsplash.com/photo-1596797038530-2c107aa7f964',
+    category: 'Cuisine',
+    region: 'Rajasthan',
+    era: 'Traditional',
+    description: 'A traditional Rajasthani meal featuring baked wheat balls, lentil curry, and sweetened crushed wheat.',
+    historicalBackground: "Dal Bati emerged from necessity in Rajasthan's water-scarce desert region. The batis (wheat balls) were traditionally buried in the sand and cooked by the heat of the sun or in dying wood fires while men were away in battles, creating a dish that could stay fresh for several days.",
+    culturalSignificance: "Each component of this three-part meal has symbolic significance: dal (lentils) represents sustenance, bati (wheat balls) represents strength and resilience, while churma (sweetened crushed wheat) represents celebration and sweetness in life. It's served at every significant ceremony from weddings to harvest festivals.",
+    modernRelevance: "While maintaining its traditional preparation in rural areas, dal-bati-churma has evolved in urban settings with gourmet variations. It has become a signature dish in Indian restaurants worldwide and featured in international food festivals as representing authentic Rajasthani cuisine."
+  },
+  {
+    id: 'ghevar',
+    title: 'Ghevar: Festival Sweet Disc',
+    image: 'https://images.unsplash.com/photo-1616148540189-4e2d2006e2c8',
+    category: 'Cuisine',
+    region: 'Rajasthan',
+    era: 'Traditional',
+    description: 'A disc-shaped sweet made from flour and sugar syrup, associated with the Teej and Raksha Bandhan festivals.',
+    historicalBackground: "Ghevar originated in Jaipur centuries ago and became closely associated with monsoon festivals, particularly Teej, which celebrates the arrival of rain. Its disc shape is said to represent the sun or moon, while its honeycomb structure symbolizes prosperity and abundance.",
+    culturalSignificance: "The preparation of ghevar is considered an art form, requiring considerable skill to achieve the perfect texture and honeycomb structure. It plays a central role in festival gift-giving, with elaborately decorated versions exchanged between families to strengthen social bonds.",
+    modernRelevance: "Modern variations include chocolate ghevar, fruit-topped versions, and fusion desserts that combine ghevar with international flavors. Specialty sweet shops now ship ghevar globally, allowing the diaspora to maintain cultural connections during festival seasons."
+  }
 ];
 
 // Function to get item data based on itemId
 export const getCultureItemData = (itemId: string): CultureItem | null => {
   // Check all data arrays for matching item
-  const arrays = [heritageSites, architecturalBeauties, folkLifeTraditions, danceItems, scriptureItems];
+  const arrays = [
+    heritageSites, 
+    architecturalBeauties, 
+    folkLifeTraditions, 
+    danceItems, 
+    scriptureItems,
+    musicItems,
+    artItems,
+    cuisineItems
+  ];
   
   for (const array of arrays) {
     const item = array.find(item => item.id === itemId);

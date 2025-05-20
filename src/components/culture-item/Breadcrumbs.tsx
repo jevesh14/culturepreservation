@@ -9,8 +9,9 @@ interface BreadcrumbsProps {
 }
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ item }) => {
-  // Get the main title without any subtitle
-  const mainTitle = item.title?.split(':')?.[0] || item.title;
+  // Get the main title without any subtitle - handle potential undefined values
+  const title = item.title || '';
+  const mainTitle = title.includes(':') ? title.split(':')[0].trim() : title;
   
   // Safely get category for the URL, defaulting to a fallback if needed
   const categoryUrl = item.category 

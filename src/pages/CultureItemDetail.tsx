@@ -78,7 +78,9 @@ const CultureItemDetail = () => {
             'amber-fort', 'jaisalmer-fort', 'mehrangarh-fort', 'hawa-mahal', 
             'jal-mahal', 'patwon-ki-haveli', 'bishnoi', 'pushkar-fair',
             'rajasthani-puppet', 'phad-painting', 'ghoomar', 'vedas-upanishads',
-            'umaid-bhawan'
+            'umaid-bhawan', 'kathak', 'bhavai', 'bhagavad-gita', 'ramayana',
+            'manganiyar', 'kalbelia', 'miniature-painting', 'blue-pottery',
+            'dal-bati-churma', 'ghevar'
           ];
           
           console.log('Available IDs:', availableIds);
