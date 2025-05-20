@@ -80,7 +80,11 @@ const CultureItemDetail = () => {
             'rajasthani-puppet', 'phad-painting', 'ghoomar', 'vedas-upanishads',
             'umaid-bhawan', 'kathak', 'bhavai', 'bhagavad-gita', 'ramayana',
             'manganiyar', 'kalbelia', 'miniature-painting', 'blue-pottery',
-            'dal-bati-churma', 'ghevar'
+            'dal-bati-churma', 'ghevar', 'kumbhalgarh-fort', 'chittorgarh-fort', 'ranakpur-jain-temple', 'junagarh-fort'
+            , 'city-palace-udaipur', 'jantar-mantar', 'chand-baori', 'bandhani', 'rann-utsav', 'blue-city', 'ramcharitmanas', 'devnarayan-mahagatha', 'tejaji-pabuji-phad'
+            ,  'jain-agamas', 'tantric-texts', 'kavad-shrines', 'bhopa-bhopi', 'kalbeliya'
+            , 'terah-taali', 'chari-dance', 'dhol-nritya', 'kathputli-puppet-dance'
+            , 'gair', 'rajasthani-dandiya', 'mayur-nritya'
           ];
           
           console.log('Available IDs:', availableIds);
