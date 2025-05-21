@@ -1,208 +1,274 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, ArrowRight, CheckCircle } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useToast } from "@/components/ui/use-toast";
-import { 
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-  InputOTPSeparator 
-} from "@/components/ui/input-otp";
+import { ArrowRight, User, Edit, Bell, Shield, LogOut } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ChatWithAI from '../components/ChatWithAI';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 
-const MobileAuth = () => {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+const Profile = () => {
   const navigate = useNavigate();
-  
-  const handlePhoneSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!phoneNumber || phoneNumber.length < 10) {
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid phone number",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    // This would be replaced with an actual API call in production
-    setTimeout(() => {
-      setIsLoading(false);
-      setStep('otp');
-      toast({
-        title: "OTP Sent",
-        description: `A verification code has been sent to ${phoneNumber}`,
-      });
-    }, 1000);
-  };
-  
-  const handleOtpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (otp.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter a valid 6-digit code",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    // This would be replaced with an actual API call in production
-    setTimeout(() => {
-      setIsLoading(false);
-      // Simulate successful verification
-      toast({
-        title: "Verification Successful",
-        description: "You have successfully logged in",
-      });
-      navigate('/');
-    }, 1500);
-  };
-  
+  const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+
+  // If not authenticated, show the username auth option
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
+          <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg border border-cultural-saffron/10">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-cultural-saffron/10 rounded-full mb-4">
+                <User className="h-8 w-8 text-cultural-saffron" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">Sign in to your account</h1>
+              <p className="text-gray-600">Access your profile and preferences</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">Username</label>
+                <Input 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
+                  className="w-full"
+                />
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  if (username.trim()) {
+                    setIsAuthenticated(true);
+                    toast({
+                      title: "Welcome back!",
+                      description: "You have successfully signed in",
+                    });
+                  } else {
+                    toast({
+                      title: "Username required",
+                      description: "Please enter a username to continue",
+                      variant: "destructive"
+                    });
+                  }
+                }}
+                className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
+              >
+                <span className="flex items-center">
+                  Sign in
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </span>
+              </Button>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+              <p className="text-sm text-gray-600">
+                Join the community to explore and contribute to Bharat's cultural heritage.
+              </p>
+            </div>
+          </div>
+        </main>
+        <Footer />
+        <ChatWithAI />
+      </div>
+    );
+  }
+
+  // Authenticated user view
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
-      <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
-        <div className="w-full max-w-md p-6 md:p-8 bg-white rounded-2xl shadow-lg border border-cultural-saffron/10">
-          {step === 'phone' ? (
-            <>
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-cultural-saffron/10 rounded-full mb-4">
-                  <Phone className="h-8 w-8 text-cultural-saffron" />
-                </div>
-                <h1 className="text-2xl font-bold mb-2">Sign in with Phone</h1>
-                <p className="text-gray-600">Enter your phone number to receive a verification code</p>
-              </div>
-              
-              <form onSubmit={handlePhoneSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Mobile Number
-                  </label>
-                  <div className="relative">
-                    <Input 
-                      id="phone"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                      placeholder="Enter your mobile number"
-                      className="pl-4 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-cultural-saffron focus:border-cultural-saffron"
-                      maxLength={10}
-                    />
+      <main className="flex-grow py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            {/* Profile header */}
+            <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
+              <div className="h-32 bg-gradient-to-r from-cultural-saffron to-cultural-maroon"></div>
+              <div className="px-6 pb-6">
+                <div className="flex flex-col md:flex-row items-center md:items-end -mt-12 space-y-4 md:space-y-0 md:space-x-6">
+                  <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg">
+                    <div className="h-full w-full rounded-full bg-gradient-to-br from-cultural-peacock to-cultural-blue flex items-center justify-center text-white text-3xl font-semibold">
+                      {username ? username.charAt(0).toUpperCase() : "U"}
+                    </div>
+                  </div>
+                  <div className="text-center md:text-left">
+                    <h1 className="text-2xl font-bold">{username || "User"}</h1>
+                    <p className="text-gray-600">Cultural enthusiast</p>
+                  </div>
+                  <div className="ml-auto">
+                    <Button variant="outline" size="sm" className="flex items-center">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
                   </div>
                 </div>
-                
-                <Button 
-                  type="submit" 
-                  className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Sending OTP...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      Send OTP
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </span>
-                  )}
-                </Button>
-              </form>
-            </>
-          ) : (
-            <>
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-cultural-saffron/10 rounded-full mb-4">
-                  <CheckCircle className="h-8 w-8 text-cultural-saffron" />
-                </div>
-                <h1 className="text-2xl font-bold mb-2">Enter Verification Code</h1>
-                <p className="text-gray-600">We've sent a 6-digit code to {phoneNumber}</p>
               </div>
-              
-              <form onSubmit={handleOtpSubmit} className="space-y-6">
-                <div className="flex justify-center mb-4">
-                  <InputOTP maxLength={6} value={otp} onChange={setOtp} containerClassName="gap-2">
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                      <InputOTPSlot index={1} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                      <InputOTPSlot index={2} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                    </InputOTPGroup>
-                    <InputOTPSeparator />
-                    <InputOTPGroup>
-                      <InputOTPSlot index={3} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                      <InputOTPSlot index={4} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                      <InputOTPSlot index={5} className="border-cultural-saffron/30 focus:border-cultural-saffron" />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
+            </div>
+
+            {/* Profile content */}
+            <Tabs defaultValue="account">
+              <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <TabsList className="grid grid-cols-3 mb-6">
+                  <TabsTrigger value="account">Account</TabsTrigger>
+                  <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                  <TabsTrigger value="security">Security</TabsTrigger>
+                </TabsList>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Verifying...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
-                      Verify & Sign In
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </span>
-                  )}
-                </Button>
+                <TabsContent value="account" className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Personal Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Name</label>
+                        <Input placeholder="Your name" defaultValue={username || "User"} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Email</label>
+                        <Input placeholder="Your email" defaultValue="user@example.com" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Username</label>
+                        <Input placeholder="Your username" defaultValue={username} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Location</label>
+                        <Input placeholder="Your location" defaultValue="Delhi, India" />
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <Button 
+                        onClick={() => {
+                          toast({
+                            title: "Profile updated",
+                            description: "Your profile information has been updated successfully.",
+                          });
+                        }}
+                      >
+                        Save Changes
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
                 
-                <div className="text-center">
-                  <button 
-                    type="button" 
-                    onClick={() => setStep('phone')}
-                    className="text-cultural-saffron hover:underline text-sm"
-                  >
-                    Change phone number
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
-          
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <p className="text-sm text-center text-gray-600">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
-            </p>
+                <TabsContent value="preferences" className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Notification Preferences</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">Email Notifications</p>
+                          <p className="text-sm text-gray-500">Receive updates about new cultural content</p>
+                        </div>
+                        <div className="flex items-center h-6">
+                          <input
+                            id="email-notifications"
+                            aria-describedby="email-notifications-description"
+                            name="email-notifications"
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
+                            defaultChecked
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">SMS Notifications</p>
+                          <p className="text-sm text-gray-500">Get alerts via SMS for important updates</p>
+                        </div>
+                        <div className="flex items-center h-6">
+                          <input
+                            id="sms-notifications"
+                            aria-describedby="sms-notifications-description"
+                            name="sms-notifications"
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Cultural Interests</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {['Scriptures', 'Dance Forms', 'Art Forms', 'Festivals', 'Music', 'Architecture'].map((interest) => (
+                        <div key={interest} className="flex items-center">
+                          <input
+                            id={`interest-${interest}`}
+                            name={`interest-${interest}`}
+                            type="checkbox"
+                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
+                            defaultChecked={['Scriptures', 'Art Forms', 'Festivals'].includes(interest)}
+                          />
+                          <label htmlFor={`interest-${interest}`} className="ml-2 text-sm text-gray-700">
+                            {interest}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-6">
+                      <Button 
+                        onClick={() => {
+                          toast({
+                            title: "Preferences updated",
+                            description: "Your preferences have been updated successfully.",
+                          });
+                        }}
+                      >
+                        Save Preferences
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="security" className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Username</h3>
+                    <div className="flex items-center justify-between pb-4 border-b">
+                      <div>
+                        <p className="font-medium">{username || "User"}</p>
+                        <p className="text-sm text-gray-500">Your login username</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Change
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <h3 className="text-lg font-medium mb-4">Account Actions</h3>
+                    <div className="space-y-4">
+                      <Button 
+                        variant="outline" 
+                        className="w-full flex justify-between items-center text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => {
+                          setIsAuthenticated(false);
+                          toast({
+                            title: "Signed out",
+                            description: "You have been signed out successfully.",
+                          });
+                        }}
+                      >
+                        <span>Sign Out</span>
+                        <LogOut className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
         </div>
       </main>
-      
       <Footer />
       <ChatWithAI />
     </div>
   );
 };
 
-export default MobileAuth;
+export default Profile;
