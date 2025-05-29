@@ -1,27 +1,71 @@
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import React, { useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../App';
 
 const NotFound = () => {
-  const location = useLocation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute();
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      route.name
     );
-  }, [location.pathname]);
+  }, [route.name]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
-      </div>
-    </div>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>404</Text>
+        <Text style={styles.subtitle}>Oops! Page not found</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={styles.link}
+        >
+          <Text style={styles.linkText}>Return to Home</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  subtitle: {
+    fontSize: 20,
+    color: '#666',
+    marginBottom: 16,
+  },
+  link: {
+    padding: 8,
+  },
+  linkText: {
+    color: '#007AFF',
+    fontSize: 16,
+    textDecorationLine: 'underline',
+  },
+});
 
 export default NotFound;

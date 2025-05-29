@@ -1,13 +1,23 @@
-
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, BookOpen, Tag, ChevronRight, Plus } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ChatWithAI from '../components/ChatWithAI';
-import CultureCard from '../components/CultureCard';
-import AddCultureItemModal from '../components/AddCultureItemModal';
-import { toast } from "@/hooks/use-toast";
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  Modal,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import type { RootStackParamList } from '../App';
 
 // This type will eventually be replaced with real data from your backend
 interface CategoryData {
@@ -323,282 +333,425 @@ export const getCategoryData = (categoryId: string): CategoryData => {
   return baseCategory;
 };
 
+type CategoryDetailRouteProp = RouteProp<RootStackParamList, 'CategoryDetail'>;
+
 const CategoryDetail = () => {
-  const { categoryId } = useParams<{ categoryId: string }>();
-  const [categoryData, setCategoryData] = useState<CategoryData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const route = useRoute<CategoryDetailRouteProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { id: categoryId } = route.params;
+  const [category, setCategory] = useState<CategoryData | null>(null);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [newItem, setNewItem] = useState({
+    title: '',
+    image: '',
+    region: '',
+    era: '',
+    description: '',
+  });
 
   useEffect(() => {
-    if (categoryId) {
-      // Simulating an API call
-      setTimeout(() => {
-        setCategoryData(getCategoryData(categoryId));
-        setLoading(false);
-      }, 500);
+    if (!categoryId) {
+      Alert.alert('Error', 'No category ID provided');
+      return;
+    }
+
+    const data = getCategoryData(categoryId);
+    if (data) {
+      setCategory(data);
+    } else {
+      Alert.alert('Error', 'Category not found');
     }
   }, [categoryId]);
 
-  const handleAddItem = (newItem: {
-    title: string;
-    image: string;
-    region?: string;
-    era?: string;
-    description: string;
-  }) => {
-    if (categoryData) {
-      const updatedItem = {
-        ...newItem,
-        id: `item-${Date.now()}`, // Create a unique ID
-        category: categoryData.title
-      };
-      
-      setCategoryData({
-        ...categoryData,
-        items: [...categoryData.items, updatedItem]
-      });
-      
-      toast({
-        title: "Item Added",
-        description: `"${newItem.title}" has been added to ${categoryData.title}`
-      });
-      
-      setShowAddModal(false);
+  const handleAddItem = () => {
+    if (!newItem.title || !newItem.description) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
     }
+
+    // Simulate adding the item
+    if (category) {
+      const updatedCategory = {
+        ...category,
+        items: [
+          ...category.items,
+          {
+            id: Date.now().toString(),
+            category: category.title,
+            ...newItem,
+          },
+        ],
+      };
+    
+      setCategory(updatedCategory);
+    }
+    setIsAddModalVisible(false);
+    setNewItem({
+      title: '',
+      image: '',
+      region: '',
+      era: '',
+      description: '',
+    });
+
+    Alert.alert('Success', 'Item added successfully');
   };
 
-  if (loading) {
+  if (!category) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="w-48 h-6 bg-gray-200 rounded-md mb-4"></div>
-            <div className="w-72 h-4 bg-gray-200 rounded-md"></div>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF7F00" />
+        <Text style={styles.loadingText}>Loading category details...</Text>
+      </SafeAreaView>
     );
   }
 
-  if (!categoryData) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-2">Category Not Found</h1>
-            <p className="text-gray-600 mb-6">The category you're looking for doesn't exist or has been removed.</p>
-            <Link to="/library" className="text-cultural-saffron hover:underline">
-              Return to Library
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
+  const AddItemModal = () => (
+    <Modal
+      visible={isAddModalVisible}
+      animationType="slide"
+      transparent={true}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Add New Item</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Title"
+            value={newItem.title}
+            onChangeText={(text) => setNewItem({ ...newItem, title: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Image URL"
+            value={newItem.image}
+            onChangeText={(text) => setNewItem({ ...newItem, image: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Region"
+            value={newItem.region}
+            onChangeText={(text) => setNewItem({ ...newItem, region: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Era"
+            value={newItem.era}
+            onChangeText={(text) => setNewItem({ ...newItem, era: text })}
+          />
+
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            placeholder="Description"
+            value={newItem.description}
+            onChangeText={(text) => setNewItem({ ...newItem, description: text })}
+            multiline
+            numberOfLines={4}
+          />
+
+          <View style={styles.modalButtons}>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setIsAddModalVisible(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.addButton]}
+              onPress={handleAddItem}
+            >
+              <Text style={styles.addButtonText}>Add Item</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
     );
-  }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow">
-        {/* Hero section with parallax effect */}
-        <section className="relative h-[50vh] overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-cover bg-center z-0" 
-            style={{ 
-              backgroundImage: `url(${categoryData.coverImage})`,
-              transform: 'translateZ(0)',
-            }}
-          ></div>
-          <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-          <div className="container mx-auto px-4 h-full flex items-end pb-12 relative z-20">
-            <div className="text-white max-w-3xl">
-              <Link to="/library" className="inline-flex items-center text-white/80 hover:text-white mb-4">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span>Back to Library</span>
-              </Link>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">{categoryData.title}</h1>
-              <p className="text-xl text-white/90">{categoryData.description}</p>
-            </div>
-          </div>
-        </section>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Image
+            source={{ uri: category.coverImage }}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+          <View style={styles.heroContent}>
+            <Text style={styles.heroTitle}>{category.title}</Text>
+            <Text style={styles.heroDescription}>{category.description}</Text>
+          </View>
+        </View>
         
-        {/* Breadcrumbs */}
-        <section className="bg-gray-50 border-b">
-          <div className="container mx-auto px-4 py-3">
-            <nav className="flex" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                <li className="inline-flex items-center">
-                  <Link to="/" className="text-sm text-gray-500 hover:text-cultural-saffron inline-flex items-center">
-                    Home
-                  </Link>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                    <Link to="/library" className="ml-1 text-sm text-gray-500 hover:text-cultural-saffron">
-                      Library
-                    </Link>
-                  </div>
-                </li>
-                <li aria-current="page">
-                  <div className="flex items-center">
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                    <span className="ml-1 text-sm text-cultural-saffron font-medium">
-                      {categoryData.title}
-                    </span>
-                  </div>
-                </li>
-              </ol>
-            </nav>
-          </div>
-        </section>
+        {/* Main Content */}
+        <View style={styles.mainContent}>
+          {/* Overview Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Overview</Text>
+            <Text style={styles.sectionText}>{category.longDescription}</Text>
+          </View>
+
+          {/* Historical Background */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Historical Background</Text>
+            <Text style={styles.sectionText}>{category.historicalBackground}</Text>
+          </View>
         
-        {/* Main content */}
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Main content column */}
-              <div className="lg:col-span-2">
-                <article className="prose prose-lg max-w-none">
-                  <p className="text-xl lead font-medium text-gray-700">{categoryData.longDescription}</p>
-                  
-                  <h2>Historical Background</h2>
-                  <p>{categoryData.historicalBackground}</p>
-                  
-                  <h2>Cultural Significance</h2>
-                  <p>{categoryData.culturalSignificance}</p>
-                  
-                  <h2>Modern Relevance</h2>
-                  <p>{categoryData.modernRelevance}</p>
-                </article>
+          {/* Cultural Significance */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Cultural Significance</Text>
+            <Text style={styles.sectionText}>{category.culturalSignificance}</Text>
+          </View>
+
+          {/* Modern Relevance */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Modern Relevance</Text>
+            <Text style={styles.sectionText}>{category.modernRelevance}</Text>
+          </View>
                 
-                <div className="mt-12">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold">Examples</h2>
-                    <button 
-                      onClick={() => setShowAddModal(true)}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Add New</span>
-                    </button>
-                  </div>
+          {/* Items Grid */}
+          <View style={styles.itemsSection}>
+            <View style={styles.itemsHeader}>
+              <Text style={styles.itemsTitle}>Items in this Category</Text>
+              <TouchableOpacity
+                style={styles.addItemButton}
+                onPress={() => setIsAddModalVisible(true)}
+              >
+                <Feather name="camera" size={24} color="black" />
+                <Text style={styles.addItemText}>Add Item</Text>
+              </TouchableOpacity>
+            </View>
                   
-                  {categoryData.items.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {categoryData.items.map(item => (
-                        <CultureCard
+            <View style={styles.itemsGrid}>
+              {category.items.map((item) => (
+                <TouchableOpacity
                           key={item.id}
-                          id={item.id}
-                          title={item.title}
-                          image={item.image}
-                          category={item.category}
-                          region={item.region || ""}
-                          era={item.era}
-                          description={item.description}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                      <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-medium mb-2">No Examples Yet</h3>
-                      <p className="text-gray-600 mb-4">
-                        Add your first example to this category.
-                      </p>
-                      <button 
-                        onClick={() => setShowAddModal(true)}
-                        className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
-                      >
-                        Add New Item
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Sidebar */}
-              <div>
-                <div className="sticky top-6">
-                  <div className="bg-cultural-saffron/5 border border-cultural-saffron/20 rounded-xl p-6 mb-6">
-                    <h3 className="text-lg font-bold mb-4">About This Category</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-start">
-                        <Tag className="h-5 w-5 text-cultural-saffron mr-3 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          Type: <span className="font-medium">{categoryData.title}</span>
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <MapPin className="h-5 w-5 text-cultural-saffron mr-3 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          Origin: <span className="font-medium">Various regions of India</span>
-                        </span>
-                      </li>
-                      <li className="flex items-start">
-                        <Clock className="h-5 w-5 text-cultural-saffron mr-3 mt-1 flex-shrink-0" />
-                        <span className="text-gray-700">
-                          Time Period: <span className="font-medium">Ancient to Modern</span>
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-gray-50 rounded-xl p-6">
-                    <h3 className="text-lg font-bold mb-4">Related Categories</h3>
-                    <ul className="space-y-2">
-                      <li>
-                        <Link to="/library/scriptures" className="text-cultural-saffron hover:underline flex items-center">
-                          <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Scriptures</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/library/art-forms" className="text-cultural-saffron hover:underline flex items-center">
-                          <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Art Forms</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/library/dance-forms" className="text-cultural-saffron hover:underline flex items-center">
-                          <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Dance Forms</span>
-                        </Link>
-                      </li>
-                      <li>
-                        <Link to="/library/festivals" className="text-cultural-saffron hover:underline flex items-center">
-                          <ChevronRight className="h-4 w-4 mr-1" />
-                          <span>Festivals</span>
-                        </Link>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      {/* Add Item Modal */}
-      {showAddModal && (
-        <AddCultureItemModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onAdd={handleAddItem}
-          category={categoryData.title}
-        />
-      )}
-      
-      <Footer />
-      <ChatWithAI />
-    </div>
+                  style={styles.itemCard}
+                  onPress={() => navigation.navigate('CultureItemDetail', { id: item.id })}
+                >
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.itemImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.itemContent}>
+                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    {item.region && (
+                      <View style={styles.itemMeta}>
+                        <Feather name="camera" size={24} color="black" />
+                        <Text style={styles.itemMetaText}>{item.region}</Text>
+                      </View>
+                    )}
+                    {item.era && (
+                      <View style={styles.itemMeta}>
+                        <Feather name="camera" size={24} color="black" />
+                        <Text style={styles.itemMetaText}>{item.era}</Text>
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      <AddItemModal />
+    </SafeAreaView>
   );
 };
+
+const { width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  heroSection: {
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: 300,
+  },
+  heroContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  heroDescription: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  mainContent: {
+    padding: 16,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  sectionText: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+  },
+  itemsSection: {
+    marginTop: 24,
+  },
+  itemsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  itemsTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  addItemButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#FF7F00',
+  },
+  addItemText: {
+    marginLeft: 8,
+    color: '#FF7F00',
+    fontWeight: '600',
+  },
+  itemsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
+  },
+  itemCard: {
+    width: (width - 48) / 2,
+    marginHorizontal: 8,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  itemImage: {
+    width: '100%',
+    height: 150,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  itemContent: {
+    padding: 12,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  itemMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  itemMetaText: {
+    marginLeft: 4,
+    fontSize: 12,
+    color: '#666',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+  },
+  modalButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  addButton: {
+    backgroundColor: '#FF7F00',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default CategoryDetail;

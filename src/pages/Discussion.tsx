@@ -1,12 +1,19 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Dimensions,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Search } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ChatWithAI from '../components/ChatWithAI';
-
-// Define empty arrays for categories and sorting options
+// Define categories and sorting options
 const categories = [
   'All Topics',
   'Culture Debates',
@@ -16,7 +23,6 @@ const categories = [
   'Regional Spotlights'
 ];
 
-// Sort options - reduced to only Trending and Recent
 const sortOptions = [
   'Trending',
   'Recent'
@@ -26,166 +32,381 @@ const Discussion = () => {
   const [activeCategory, setActiveCategory] = useState('All Topics');
   const [sortBy, setSortBy] = useState('Trending');
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const navigation = useNavigation();
+
+  const FilterChip = ({ label, isActive, onPress }: { label: string; isActive: boolean; onPress: () => void }) => (
+    <TouchableOpacity
+      style={[
+        styles.filterChip,
+        isActive && styles.filterChipActive
+      ]}
+      onPress={onPress}
+    >
+      <Text style={[
+        styles.filterChipText,
+        isActive && styles.filterChipTextActive
+      ]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const SortPicker = () => (
+    <View style={styles.sortContainer}>
+      <Text style={styles.sortLabel}>Sort by:</Text>
+      {sortOptions.map((option) => (
+        <TouchableOpacity
+          key={option}
+          style={[
+            styles.sortOption,
+            sortBy === option && styles.sortOptionActive
+          ]}
+          onPress={() => setSortBy(option)}
+        >
+          <Text style={[
+            styles.sortOptionText,
+            sortBy === option && styles.sortOptionTextActive
+          ]}>
+            {option}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow bg-gray-50">
-        {/* Discussion Header */}
-        <section className="bg-gradient-to-r from-cultural-silk to-white py-10 border-b">
-          <div className="container mx-auto px-4">
-            <Link to="/" className="inline-flex items-center text-gray-600 hover:text-cultural-saffron mb-4">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span>Back to home</span>
-            </Link>
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Discussion Portal</h1>
-                <p className="text-gray-600">Join conversations about Indian culture and heritage</p>
-              </div>
-              
-              {/* Search */}
-              <div className="mt-4 md:mt-0 w-full md:w-auto">
-                <div className="relative w-full md:w-64">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <Search className="h-4 w-4 text-gray-500" />
-                  </div>
-                  <input 
-                    type="text" 
-                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-cultural-saffron focus:ring-2 focus:ring-cultural-saffron/20 outline-none"
-                    placeholder="Search discussions..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Discussion Filters */}
-        <section className="py-4 border-b bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between">
-              {/* Categories */}
-              <div className="flex overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => setActiveCategory(category)}
-                    className={`px-4 py-2 mr-2 whitespace-nowrap rounded-full text-sm font-medium transition-colors ${
-                      activeCategory === category 
-                        ? 'bg-cultural-saffron/10 text-cultural-saffron' 
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Sort Dropdown - only Trending and Recent */}
-              <div className="flex items-center mt-3 md:mt-0">
-                <label className="text-sm text-gray-600 mr-2">Sort by:</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-transparent border border-gray-300 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:border-cultural-saffron focus:ring-2 focus:ring-cultural-saffron/20 cursor-pointer"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Weekly Featured Topic */}
-        <section className="py-6 border-b bg-gradient-to-r from-cultural-saffron/10 to-white">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-2/3 lg:w-3/4 mb-6 md:mb-0 md:mr-6">
-                <div className="bg-white rounded-xl p-6 border border-cultural-saffron/20 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      <span className="px-3 py-1 text-xs font-medium bg-cultural-saffron text-white rounded-full">Featured Topic</span>
-                    </div>
-                    <div className="text-sm text-gray-500">Weekly Topic</div>
-                  </div>
-                  
-                  <h2 className="text-2xl font-bold mb-2">Ready for discussions about Indian culture</h2>
-                  
-                  <p className="text-gray-600 mb-4">
-                    This space is prepared for authentic discussions about Indian culture, traditions, and heritage. 
-                    Add real discussions to engage with the community.
-                  </p>
-                  
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <span className="text-gray-500">No active discussions yet</span>
-                      </div>
-                      <Link 
-                        to="/discussion/weekly-topic" 
-                        className="px-3 py-1.5 bg-cultural-saffron text-white rounded-lg text-sm font-medium hover:bg-cultural-saffron/90 transition-colors"
-                      >
-                        Start Discussion
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="w-full md:w-1/3 lg:w-1/4">
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                  <h3 className="text-lg font-bold mb-4">Community Guidelines</h3>
-                  <ul className="space-y-2 text-sm text-gray-600">
-                    <li className="flex items-start">
-                      <div className="h-4 w-4 rounded-full bg-cultural-saffron/20 text-cultural-saffron flex items-center justify-center mr-2 mt-1 text-xs">1</div>
-                      <span>Be respectful of diverse perspectives and cultural sensitivities.</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="h-4 w-4 rounded-full bg-cultural-saffron/20 text-cultural-saffron flex items-center justify-center mr-2 mt-1 text-xs">2</div>
-                      <span>Cite sources when sharing historical or academic information.</span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="h-4 w-4 rounded-full bg-cultural-saffron/20 text-cultural-saffron flex items-center justify-center mr-2 mt-1 text-xs">3</div>
-                      <span>Focus on constructive dialogue rather than criticism.</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Empty Discussion Topics */}
-        <section className="py-8">
-          <div className="container mx-auto px-4">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">Discussion Topics</h2>
-            </div>
-            
-            <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-              <div className="mx-auto w-16 h-16 mb-4 text-gray-300">
-                <MessageCircle className="w-16 h-16" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">No discussions yet</h3>
-              <p className="text-gray-600 mb-6">
-                Check back later for discussions about Indian culture and heritage
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
-      <ChatWithAI />
-    </div>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* Header Section */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Feather name="camera" size={24} color="black" />
+            <Text style={styles.backButtonText}>Back to home</Text>
+          </TouchableOpacity>
+
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>Discussion Portal</Text>
+            <Text style={styles.headerSubtitle}>
+              Join conversations about Indian culture and heritage
+            </Text>
+          </View>
+
+          {/* Search */}
+          <View style={styles.searchContainer}>
+          <Feather name="camera" size={24} color="black" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search discussions..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+        </View>
+
+        {/* Filters Section */}
+        <View style={styles.filtersSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesScroll}
+          >
+            {categories.map((category) => (
+              <FilterChip
+                key={category}
+                label={category}
+                isActive={activeCategory === category}
+                onPress={() => setActiveCategory(category)}
+              />
+            ))}
+          </ScrollView>
+          <SortPicker />
+        </View>
+
+        {/* Featured Topic */}
+        <View style={styles.featuredSection}>
+          <View style={styles.featuredCard}>
+            <View style={styles.featuredHeader}>
+              <View style={styles.featuredBadge}>
+                <Text style={styles.featuredBadgeText}>Featured Topic</Text>
+              </View>
+              <Text style={styles.featuredType}>Weekly Topic</Text>
+            </View>
+
+            <Text style={styles.featuredTitle}>
+              Ready for discussions about Indian culture
+            </Text>
+
+            <Text style={styles.featuredDescription}>
+              This space is prepared for authentic discussions about Indian culture, traditions, and heritage.
+              Add real discussions to engage with the community.
+            </Text>
+
+            <View style={styles.featuredFooter}>
+              <Text style={styles.noDiscussionsText}>No active discussions yet</Text>
+              <TouchableOpacity style={styles.startButton}>
+                <Text style={styles.startButtonText}>Start Discussion</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Guidelines Card */}
+          <View style={styles.guidelinesCard}>
+            <Text style={styles.guidelinesTitle}>Community Guidelines</Text>
+            <View style={styles.guidelinesList}>
+              {[
+                'Be respectful of diverse perspectives and cultural sensitivities.',
+                'Cite sources when sharing historical or academic information.',
+                'Focus on constructive dialogue rather than criticism.'
+              ].map((guideline, index) => (
+                <View key={index} style={styles.guidelineItem}>
+                  <View style={styles.guidelineNumber}>
+                    <Text style={styles.guidelineNumberText}>{index + 1}</Text>
+                  </View>
+                  <Text style={styles.guidelineText}>{guideline}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Empty State */}
+        <View style={styles.emptyState}>
+        <Feather name="camera" size={24} color="black" />
+          <Text style={styles.emptyStateTitle}>No discussions yet</Text>
+          <Text style={styles.emptyStateText}>
+            Check back later for discussions about Indian culture and heritage
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#fff9f5',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButtonText: {
+    marginLeft: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  headerContent: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    paddingHorizontal: 12,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: 44,
+    fontSize: 16,
+  },
+  filtersSection: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  categoriesScroll: {
+    marginBottom: 16,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  filterChipActive: {
+    backgroundColor: '#FF7F00',
+  },
+  filterChipText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  filterChipTextActive: {
+    color: '#fff',
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sortLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginRight: 8,
+  },
+  sortOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    borderRadius: 16,
+  },
+  sortOptionActive: {
+    backgroundColor: '#FF7F00/10',
+  },
+  sortOptionText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  sortOptionTextActive: {
+    color: '#FF7F00',
+  },
+  featuredSection: {
+    padding: 16,
+    backgroundColor: '#fff9f5',
+  },
+  featuredCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FF7F00/20',
+  },
+  featuredHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  featuredBadge: {
+    backgroundColor: '#FF7F00',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  featuredBadgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  featuredType: {
+    color: '#666',
+    fontSize: 14,
+  },
+  featuredTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  featuredDescription: {
+    color: '#666',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  featuredFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  noDiscussionsText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  startButton: {
+    backgroundColor: '#FF7F00',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  startButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  guidelinesCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+  },
+  guidelinesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  guidelinesList: {
+    gap: 12,
+  },
+  guidelineItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  guidelineNumber: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FF7F00/10',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    marginTop: 2,
+  },
+  guidelineNumberText: {
+    color: '#FF7F00',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  guidelineText: {
+    flex: 1,
+    color: '#666',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  emptyState: {
+    padding: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    color: '#666',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+});
 
 export default Discussion;

@@ -1,11 +1,22 @@
-
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Upload as UploadIcon, AlertCircle, X, Check } from 'lucide-react';
-import { toast } from 'sonner';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ChatWithAI from '../components/ChatWithAI';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Alert,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import type { RootStackParamList } from '../App';
 
 // Sample options for dropdowns
 const categoryOptions = [
@@ -44,67 +55,72 @@ const Upload = () => {
     author: '',
   });
   
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [files, setFiles] = useState<FileList | null>(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnail, setThumbnail] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleInputChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
-  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setThumbnail(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setThumbnailPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFiles(e.target.files);
-    }
-  };
-  
-  const clearThumbnail = () => {
-    setThumbnail(null);
-    setThumbnailPreview(null);
-  };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     
-    // Basic validation
-    if (!formData.title || !formData.description || !formData.category) {
-      toast.error("Please fill in all required fields", {
-        description: "Title, description, and category are required."
-      });
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission needed',
+        'Please grant camera roll permissions to upload images.'
+      );
       return;
     }
-    
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setThumbnail(result.assets[0].uri);
+    }
+  };
+
+  const clearThumbnail = () => {
+    setThumbnail(null);
+  };
+
+  const handleSubmit = () => {
+    // Basic validation
+    if (!formData.title || !formData.description || !formData.category) {
+      Alert.alert(
+        'Missing Information',
+        'Please fill in all required fields (Title, description, and category are required).'
+      );
+      return;
+    }
+
     // Show submitting state
     setIsSubmitting(true);
-    
+
     // Simulate API submission
     setTimeout(() => {
-      console.log('Submitted data:', { ...formData, thumbnail, files });
-      toast.success("Content submitted successfully", {
-        description: "Your contribution will be reviewed and published soon."
-      });
+      console.log('Submitted data:', { ...formData, thumbnail });
+      Alert.alert(
+        'Success',
+        'Your contribution will be reviewed and published soon.',
+        [
+          {
+            text: 'OK',
+            onPress: () => setSubmitted(true),
+          },
+        ]
+      );
       setIsSubmitting(false);
-      setSubmitted(true);
     }, 2000);
   };
-  
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -116,280 +132,403 @@ const Upload = () => {
       author: '',
     });
     setThumbnail(null);
-    setThumbnailPreview(null);
-    setFiles(null);
     setSubmitted(false);
   };
 
+  const SelectionModal = ({ title, options, value, onSelect }: any) => (
+    <View style={styles.selectContainer}>
+      <Text style={styles.label}>{title}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        {options.map((option: string) => (
+          <TouchableOpacity
+            key={option}
+            style={[
+              styles.optionButton,
+              value === option && styles.optionButtonSelected
+            ]}
+            onPress={() => onSelect(option)}
+          >
+            <Text style={[
+              styles.optionText,
+              value === option && styles.optionTextSelected
+            ]}>
+              {option}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  if (submitted) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.successContainer}>
+          <View style={styles.successIcon}>
+          <Feather name="camera" size={24} color="black" />
+          </View>
+          <Text style={styles.successTitle}>Thank You for Your Contribution!</Text>
+          <Text style={styles.successText}>
+            Your submission has been received and will be reviewed by our team.
+            You'll receive a notification once it's published to the Cultural Hub.
+          </Text>
+          <View style={styles.successButtons}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={resetForm}
+            >
+              <Text style={styles.primaryButtonText}>Upload Another Item</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate('Home')}
+            >
+              <Text style={styles.secondaryButtonText}>Return to Home</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow bg-gray-50">
-        {/* Upload Header */}
-        <section className="bg-gradient-to-r from-cultural-silk to-white py-10 border-b">
-          <div className="container mx-auto px-4">
-            <Link to="/" className="inline-flex items-center text-gray-600 hover:text-cultural-saffron mb-4">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span>Back to home</span>
-            </Link>
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Upload Cultural Content</h1>
-                <p className="text-gray-600">Share your cultural knowledge with the community</p>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Upload Form */}
-        <section className="py-10">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              {submitted ? (
-                <div className="p-8 text-center">
-                  <div className="mx-auto h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                    <Check className="h-8 w-8 text-green-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold mb-2">Thank You for Your Contribution!</h2>
-                  <p className="text-gray-600 mb-6">
-                    Your submission has been received and will be reviewed by our team. 
-                    You'll receive a notification once it's published to the Cultural Hub.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                      onClick={resetForm}
-                      className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
-                    >
-                      Upload Another Item
-                    </button>
-                    <Link 
-                      to="/"
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Return to Home
-                    </Link>
-                  </div>
-                </div>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoid}
+      >
+        <ScrollView>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Feather name="camera" size={24} color="black" />
+              <Text style={styles.backButtonText}>Back to home</Text>
+            </TouchableOpacity>
+
+            <View style={styles.headerContent}>
+              <Text style={styles.headerTitle}>Upload Cultural Content</Text>
+              <Text style={styles.headerSubtitle}>
+                Share your cultural knowledge with the community
+              </Text>
+            </View>
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            <Text style={styles.formTitle}>Content Information</Text>
+
+            {/* Title */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>
+                Title <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={formData.title}
+                onChangeText={(value) => handleInputChange('title', value)}
+                placeholder="Enter a descriptive title for your content"
+              />
+            </View>
+
+            {/* Description */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>
+                Description <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={formData.description}
+                onChangeText={(value) => handleInputChange('description', value)}
+                placeholder="Provide detailed information about this cultural item"
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+
+            {/* Category Selection */}
+            <SelectionModal
+              title="Category"
+              options={categoryOptions}
+              value={formData.category}
+              onSelect={(value: string) => handleInputChange('category', value)}
+            />
+
+            {/* Era Selection */}
+            <SelectionModal
+              title="Era"
+              options={eraOptions}
+              value={formData.era}
+              onSelect={(value: string) => handleInputChange('era', value)}
+            />
+
+            {/* Region Selection */}
+            <SelectionModal
+              title="Region"
+              options={regionOptions}
+              value={formData.region}
+              onSelect={(value: string) => handleInputChange('region', value)}
+            />
+
+            {/* Style Selection */}
+            <SelectionModal
+              title="Style"
+              options={styleOptions}
+              value={formData.style}
+              onSelect={(value: string) => handleInputChange('style', value)}
+            />
+
+            {/* Author */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Author/Creator</Text>
+              <TextInput
+                style={styles.input}
+                value={formData.author}
+                onChangeText={(value) => handleInputChange('author', value)}
+                placeholder="Name of the creator or author (leave blank if unknown)"
+              />
+            </View>
+
+            {/* Thumbnail Upload */}
+            <View style={styles.thumbnailSection}>
+              <Text style={styles.label}>Thumbnail Image</Text>
+              {thumbnail ? (
+                <View style={styles.thumbnailPreview}>
+                  <Image
+                    source={{ uri: thumbnail }}
+                    style={styles.thumbnailImage}
+                  />
+                  <TouchableOpacity
+                    style={styles.clearThumbnail}
+                    onPress={clearThumbnail}
+                  >
+                    <Feather name="camera" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
               ) : (
-                <form onSubmit={handleSubmit}>
-                  <div className="p-6 md:p-8">
-                    <h2 className="text-2xl font-bold mb-6">Content Information</h2>
-                    
-                    {/* Title */}
-                    <div className="mb-5">
-                      <label htmlFor="title" className="block text-gray-700 font-medium mb-1">Title <span className="text-red-500">*</span></label>
-                      <input
-                        id="title"
-                        name="title"
-                        type="text"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                        className="cultural-input w-full"
-                        placeholder="Enter a descriptive title for your content"
-                        required
-                      />
-                    </div>
-                    
-                    {/* Description */}
-                    <div className="mb-5">
-                      <label htmlFor="description" className="block text-gray-700 font-medium mb-1">Description <span className="text-red-500">*</span></label>
-                      <textarea
-                        id="description"
-                        name="description"
-                        rows={5}
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        className="cultural-input w-full"
-                        placeholder="Provide detailed information about the cultural content"
-                        required
-                      />
-                    </div>
-                    
-                    {/* Category and Era */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                      <div>
-                        <label htmlFor="category" className="block text-gray-700 font-medium mb-1">Category <span className="text-red-500">*</span></label>
-                        <select
-                          id="category"
-                          name="category"
-                          value={formData.category}
-                          onChange={handleInputChange}
-                          className="cultural-input w-full"
-                          required
-                        >
-                          <option value="">Select a category</option>
-                          {categoryOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="era" className="block text-gray-700 font-medium mb-1">Era</label>
-                        <select
-                          id="era"
-                          name="era"
-                          value={formData.era}
-                          onChange={handleInputChange}
-                          className="cultural-input w-full"
-                        >
-                          <option value="">Select an era</option>
-                          {eraOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    {/* Region and Style */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                      <div>
-                        <label htmlFor="region" className="block text-gray-700 font-medium mb-1">Region</label>
-                        <select
-                          id="region"
-                          name="region"
-                          value={formData.region}
-                          onChange={handleInputChange}
-                          className="cultural-input w-full"
-                        >
-                          <option value="">Select a region</option>
-                          {regionOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="style" className="block text-gray-700 font-medium mb-1">Style</label>
-                        <select
-                          id="style"
-                          name="style"
-                          value={formData.style}
-                          onChange={handleInputChange}
-                          className="cultural-input w-full"
-                        >
-                          <option value="">Select a style</option>
-                          {styleOptions.map(option => (
-                            <option key={option} value={option}>{option}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    {/* Author */}
-                    <div className="mb-5">
-                      <label htmlFor="author" className="block text-gray-700 font-medium mb-1">Author/Creator</label>
-                      <input
-                        id="author"
-                        name="author"
-                        type="text"
-                        value={formData.author}
-                        onChange={handleInputChange}
-                        className="cultural-input w-full"
-                        placeholder="Name of the creator or author (leave blank if unknown)"
-                      />
-                    </div>
-                    
-                    {/* Thumbnail */}
-                    <div className="mb-5">
-                      <label className="block text-gray-700 font-medium mb-1">Thumbnail Image</label>
-                      {!thumbnailPreview ? (
-                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
-                          <UploadIcon className="h-10 w-10 mx-auto text-gray-400 mb-3" />
-                          <p className="text-gray-500 mb-4">Click to upload or drag and drop</p>
-                          <input
-                            type="file"
-                            id="thumbnail"
-                            accept="image/*"
-                            onChange={handleThumbnailChange}
-                            className="hidden"
-                          />
-                          <label
-                            htmlFor="thumbnail"
-                            className="px-4 py-2 bg-cultural-saffron text-white rounded-lg cursor-pointer hover:bg-cultural-saffron/90 transition-colors inline-block"
-                          >
-                            Select Image
-                          </label>
-                        </div>
-                      ) : (
-                        <div className="relative">
-                          <img 
-                            src={thumbnailPreview} 
-                            alt="Thumbnail preview" 
-                            className="h-48 w-full object-cover rounded-xl" 
-                          />
-                          <button 
-                            type="button" 
-                            onClick={clearThumbnail} 
-                            className="absolute top-2 right-2 h-8 w-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:bg-white"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Content Files */}
-                    <div className="mb-5">
-                      <label className="block text-gray-700 font-medium mb-1">Content Files</label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
-                        <UploadIcon className="h-10 w-10 mx-auto text-gray-400 mb-3" />
-                        <p className="text-gray-500 mb-1">Click to upload or drag and drop</p>
-                        <p className="text-xs text-gray-500 mb-4">Supported formats: Images, videos, PDF, and Word documents</p>
-                        <input
-                          type="file"
-                          id="files"
-                          multiple
-                          onChange={handleFilesChange}
-                          className="hidden"
-                        />
-                        <label
-                          htmlFor="files"
-                          className="px-4 py-2 bg-cultural-saffron text-white rounded-lg cursor-pointer hover:bg-cultural-saffron/90 transition-colors inline-block"
-                        >
-                          Select Files
-                        </label>
-                        {files && files.length > 0 && (
-                          <p className="mt-3 text-sm text-gray-600">{files.length} file(s) selected</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* Notice */}
-                    <div className="flex items-start space-x-3 p-4 bg-amber-50 rounded-lg border border-amber-200 mb-5">
-                      <div className="flex-shrink-0">
-                        <AlertCircle className="h-5 w-5 text-amber-500" />
-                      </div>
-                      <div className="text-sm text-amber-800">
-                        <p className="font-medium">Note:</p>
-                        <p>All content will undergo moderation to ensure it aligns with cultural themes and is appropriate for public viewing.</p>
-                      </div>
-                    </div>
-                    
-                    {/* Submit Button */}
-                    <div className="mt-8">
-                      <button
-                        type="submit"
-                        className="w-full px-4 py-3 bg-cultural-saffron text-white rounded-xl text-lg font-medium hover:bg-cultural-saffron/90 transition-colors focus:ring-2 focus:ring-cultural-saffron/30 disabled:opacity-70"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Submitting..." : "Submit Content"}
-                      </button>
-                    </div>
-                  </div>
-                </form>
+                <TouchableOpacity
+                  style={styles.uploadButton}
+                  onPress={pickImage}
+                >
+                  <Feather name="camera" size={24} color="black" />
+                  <Text style={styles.uploadButtonText}>Choose Image</Text>
+                </TouchableOpacity>
               )}
-            </div>
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
-      <ChatWithAI />
-    </div>
+            </View>
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                isSubmitting && styles.submitButtonDisabled
+              ]}
+              onPress={handleSubmit}
+              disabled={isSubmitting}
+            >
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? 'Submitting...' : 'Submit Content'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  header: {
+    padding: 20,
+    backgroundColor: '#fff9f5',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  backButtonText: {
+    marginLeft: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  headerContent: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  form: {
+    padding: 20,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#333',
+  },
+  required: {
+    color: '#FF4444',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  selectContainer: {
+    marginBottom: 20,
+  },
+  optionButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    marginRight: 8,
+    marginTop: 8,
+  },
+  optionButtonSelected: {
+    backgroundColor: '#FF7F00',
+  },
+  optionText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  optionTextSelected: {
+    color: '#fff',
+  },
+  thumbnailSection: {
+    marginBottom: 20,
+  },
+  thumbnailPreview: {
+    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+  },
+  clearThumbnail: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 8,
+  },
+  uploadButton: {
+    borderWidth: 2,
+    borderColor: '#FF7F00',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadButtonText: {
+    color: '#FF7F00',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 8,
+  },
+  submitButton: {
+    backgroundColor: '#FF7F00',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  submitButtonDisabled: {
+    opacity: 0.7,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  successContainer: {
+    flex: 1,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  successIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#22C55E20',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  successText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  successButtons: {
+    gap: 12,
+    width: '100%',
+  },
+  primaryButton: {
+    backgroundColor: '#FF7F00',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default Upload;

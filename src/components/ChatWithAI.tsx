@@ -1,112 +1,285 @@
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Animated,
+  Platform,
+  KeyboardAvoidingView,
+  ActivityIndicator,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Feather';
 
-import { useState } from 'react';
-import { MessageCircle, X, SendHorizontal, Mic } from 'lucide-react';
+interface Message {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: Date;
+}
 
-const ChatWithAI = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  
-  const toggleChat = () => setIsOpen(!isOpen);
+const ChatMessage = ({ message }: { message: Message }) => {
+  const translateY = useRef(new Animated.Value(50)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (message.trim()) {
-      // In a real app, you would send this message to an AI service
-      console.log("Sending message:", message);
-      setMessage('');
-    }
-  };
-
-  const suggestions = [
-    "Tell me about Indian classical dance forms",
-    "What are the major festivals of India?",
-    "Explain the significance of Ramayana",
-    "Show me traditional Indian art styles"
-  ];
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   return (
-    <>
-      {/* Chat Button */}
-      <button 
-        onClick={toggleChat}
-        className="fixed bottom-6 right-6 bg-gradient-to-br from-cultural-saffron to-cultural-maroon text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 z-50 flex items-center justify-center"
-      >
-        {isOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <>
-            <MessageCircle className="h-6 w-6" />
-            <span className="ml-2 font-medium hidden md:inline">Chat with AI</span>
-          </>
-        )}
-      </button>
-      
-      {/* Chat Panel */}
-      {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-cultural-saffron/20 overflow-hidden z-40 animate-scale-in">
-          <div className="bg-gradient-to-r from-cultural-saffron to-cultural-maroon p-4 text-white">
-            <h3 className="font-bold">Cultural Knowledge Assistant</h3>
-            <p className="text-sm opacity-90">Ask me anything about Indian culture and heritage</p>
-          </div>
-          
-          <div className="h-80 overflow-y-auto p-4 bg-gray-50">
-            {/* AI Welcome Message */}
-            <div className="flex items-start mb-4">
-              <div className="bg-white p-3 rounded-lg shadow-sm max-w-[80%]">
-                <p className="text-sm">
-                  नमस्ते! Welcome to Bharat Cultural Hub! How can I help you explore Indian culture today?
-                </p>
-              </div>
-            </div>
-            
-            {/* Suggested Questions */}
-            <div className="mb-4">
-              <p className="text-xs text-gray-500 mb-2">Suggested questions:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestions.map((suggestion, index) => (
-                  <button 
-                    key={index} 
-                    className="bg-white text-xs py-1.5 px-3 rounded-full border border-cultural-saffron/30 text-gray-700 hover:bg-cultural-saffron/10 transition-colors"
-                    onClick={() => setMessage(suggestion)}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          
-          {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-gray-200 bg-white">
-            <div className="flex items-center space-x-2">
-              <button 
-                type="button" 
-                className="text-gray-400 hover:text-cultural-saffron"
-                aria-label="Voice input"
-              >
-                <Mic className="h-5 w-5" />
-              </button>
-              <input 
-                type="text" 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-cultural-saffron focus:ring-1 focus:ring-cultural-saffron/20"
-                placeholder="Type your question here..."
-              />
-              <button 
-                type="submit" 
-                className={`rounded-full p-2 ${message.trim() ? 'bg-cultural-saffron text-white' : 'bg-gray-200 text-gray-400'}`}
-                disabled={!message.trim()}
-                aria-label="Send message"
-              >
-                <SendHorizontal className="h-4 w-4" />
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </>
+    <Animated.View
+      style={[
+        styles.messageContainer,
+        message.isUser ? styles.userMessage : styles.aiMessage,
+        {
+          transform: [{ translateY }],
+          opacity,
+        },
+      ]}
+    >
+      <View style={styles.messageContent}>
+        <Text style={[
+          styles.messageText,
+          message.isUser ? styles.userMessageText : styles.aiMessageText,
+        ]}>
+          {message.text}
+        </Text>
+        <Text style={styles.timestamp}>
+          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </Text>
+      </View>
+    </Animated.View>
   );
 };
+
+const ChatWithAI = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const inputAnim = useRef(new Animated.Value(0)).current;
+
+  const handleSend = async () => {
+    if (!inputText.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: inputText.trim(),
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputText('');
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'This is a simulated AI response. In the actual app, this would be replaced with a real API call to the AI service.',
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  React.useEffect(() => {
+    if (messages.length > 0) {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
+
+  const handleFocus = () => {
+    Animated.spring(inputAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleBlur = () => {
+    Animated.spring(inputAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesContent}
+      >
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#FF7F00" />
+            <Text style={styles.loadingText}>AI is thinking...</Text>
+          </View>
+        )}
+      </ScrollView>
+
+      <Animated.View
+        style={[
+          styles.inputContainer,
+          {
+            transform: [
+              {
+                scale: inputAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 1.02],
+                }),
+              },
+            ],
+          },
+        ]}
+      >
+        <TextInput
+          style={styles.input}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Ask about Indian culture..."
+          placeholderTextColor="#999"
+          multiline
+          maxLength={500}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        <TouchableOpacity
+          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+          onPress={handleSend}
+          disabled={!inputText.trim() || isLoading}
+        >
+          <Icon
+            name="send"
+            size={20}
+            color={inputText.trim() ? '#FF7F00' : '#999'}
+          />
+        </TouchableOpacity>
+      </Animated.View>
+    </KeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  messagesContainer: {
+    flex: 1,
+  },
+  messagesContent: {
+    padding: 16,
+  },
+  messageContainer: {
+    maxWidth: '80%',
+    marginBottom: 16,
+    borderRadius: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#FF7F00',
+  },
+  aiMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#fff',
+  },
+  messageContent: {
+    padding: 12,
+  },
+  messageText: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  userMessageText: {
+    color: '#fff',
+  },
+  aiMessageText: {
+    color: '#333',
+  },
+  timestamp: {
+    fontSize: 10,
+    color: 'rgba(0, 0, 0, 0.5)',
+    alignSelf: 'flex-end',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  loadingText: {
+    marginLeft: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  input: {
+    flex: 1,
+    minHeight: 40,
+    maxHeight: 100,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    fontSize: 16,
+    color: '#333',
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  },
+});
 
 export default ChatWithAI;

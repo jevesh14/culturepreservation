@@ -1,70 +1,164 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Tag, MapPin, Clock } from 'lucide-react';
+import {
+  View,
+  Text,
+  ImageBackground,
+  StyleSheet,
+  Pressable,
+  Platform,
+  Dimensions,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
 import { CultureItem } from '../../data/cultureItemData';
-import { Button } from '../ui/button';
 
 interface HeroSectionProps {
   item: CultureItem;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ item }) => {
+  const navigation = useNavigation();
+  const { width } = Dimensions.get('window');
+  const imageHeight = width * 0.7; // 70% of screen width
+
   // Fallback image if item.image is invalid
   const backgroundImage = item.image || 'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb';
 
   return (
-    <section className="relative h-[50vh] lg:h-[60vh] overflow-hidden">
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-700" 
-        style={{ 
-          backgroundImage: `url(${backgroundImage})`,
-          transform: 'translateZ(0) scale(1.02)',
-        }}
-      ></div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/30 z-10"></div>
-      
-      <div className="container mx-auto px-4 h-full flex items-end pb-12 relative z-20">
-        <div className="text-white max-w-4xl">
-          <Button 
-            asChild 
-            variant="outline" 
-            className="mb-6 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 text-white"
-          >
-            <Link to="/library" className="inline-flex items-center">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span>Back to Library</span>
-            </Link>
-          </Button>
-          
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {item.category && (
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-cultural-saffron/90 text-white">
-                <Tag className="h-3 w-3 mr-1" />
-                {item.category}
-              </div>
-            )}
-            {item.region && (
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
-                <MapPin className="h-3 w-3 mr-1" />
-                {item.region}
-              </div>
-            )}
-            {item.era && (
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
-                <Clock className="h-3 w-3 mr-1" />
-                {item.era}
-              </div>
-            )}
-          </div>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-3 drop-shadow-md">{item.title}</h1>
-          <p className="text-xl text-white/90 max-w-3xl drop-shadow-sm">{item.description}</p>
-        </div>
-      </div>
-    </section>
+    <View style={styles.container}>
+      <ImageBackground
+        source={{ uri: backgroundImage }}
+        style={[styles.imageBackground, { height: imageHeight }]}
+        resizeMode="cover"
+      >
+        <View style={styles.overlay}>
+          <View style={styles.content}>
+            {/* Back Button */}
+            <Pressable
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+              android_ripple={{ color: 'rgba(255, 255, 255, 0.2)' }}
+            >
+              <Icon name="arrow-left" size={20} color="#fff" />
+              <Text style={styles.backButtonText}>Back</Text>
+            </Pressable>
+
+            {/* Tags */}
+            <View style={styles.tagsContainer}>
+              {item.category && (
+                <View style={[styles.tag, styles.primaryTag]}>
+                  <Icon name="tag" size={12} color="#fff" />
+                  <Text style={styles.tagText}>{item.category}</Text>
+                </View>
+              )}
+              {item.region && (
+                <View style={styles.tag}>
+                  <Icon name="map-pin" size={12} color="#fff" />
+                  <Text style={styles.tagText}>{item.region}</Text>
+                </View>
+              )}
+              {item.era && (
+                <View style={styles.tag}>
+                  <Icon name="clock" size={12} color="#fff" />
+                  <Text style={styles.tagText}>{item.era}</Text>
+                </View>
+              )}
+            </View>
+
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.description}>{item.description}</Text>
+          </View>
+        </View>
+      </ImageBackground>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
+  imageBackground: {
+    width: '100%',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  content: {
+    padding: 16,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 8,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        overflow: 'hidden',
+      },
+    }),
+  },
+  backButtonText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  primaryTag: {
+    backgroundColor: '#FF7F00',
+  },
+  tagText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '500',
+    marginLeft: 4,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+    ...Platform.select({
+      ios: {
+        fontFamily: 'System',
+      },
+      android: {
+        fontFamily: 'Roboto',
+      },
+    }),
+  },
+  description: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    lineHeight: 24,
+    ...Platform.select({
+      ios: {
+        fontFamily: 'System',
+      },
+      android: {
+        fontFamily: 'Roboto',
+      },
+    }),
+  },
+});
 
 export default HeroSection;

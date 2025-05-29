@@ -1,48 +1,97 @@
-import * as React from "react"
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import React, { useState } from 'react';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  ViewStyle,
+} from 'react-native';
 
-import { cn } from "@/lib/utils"
+interface AvatarProps {
+  source?: string;
+  fallback?: string;
+  size?: number;
+  style?: ViewStyle;
+}
 
-const Avatar = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
-    )}
-    {...props}
-  />
-))
-Avatar.displayName = AvatarPrimitive.Root.displayName
+const Avatar = ({
+  source,
+  fallback,
+  size = 40,
+  style,
+}: AvatarProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
-const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Image>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Image
-    ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
-    {...props}
-  />
-))
-AvatarImage.displayName = AvatarPrimitive.Image.displayName
+  const getFallbackInitials = () => {
+    if (!fallback) return '?';
+    return fallback
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
-const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof AvatarPrimitive.Fallback>,
-  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-  <AvatarPrimitive.Fallback
-    ref={ref}
-    className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-muted",
-      className
-    )}
-    {...props}
-  />
-))
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName
+  const containerStyle = {
+    width: size,
+    height: size,
+    borderRadius: size / 2,
+  };
 
-export { Avatar, AvatarImage, AvatarFallback }
+  return (
+    <View style={[styles.container, containerStyle, style]}>
+      {source && !hasError ? (
+        <>
+          <Image
+            source={{ uri: source }}
+            style={[styles.image, containerStyle]}
+            onLoadStart={() => setIsLoading(true)}
+            onLoadEnd={() => setIsLoading(false)}
+            onError={() => setHasError(true)}
+          />
+          {isLoading && (
+            <View style={[styles.loadingContainer, containerStyle]}>
+              <ActivityIndicator color="#FF7F00" />
+            </View>
+          )}
+        </>
+      ) : (
+        <View style={[styles.fallback, containerStyle]}>
+          <Text style={[styles.fallbackText, { fontSize: size * 0.4 }]}>
+            {getFallbackInitials()}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#f5f5f5',
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  fallback: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FF7F00',
+  },
+  fallbackText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
+
+export default Avatar;

@@ -1,56 +1,160 @@
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import React from 'react';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  Animated,
+  Platform,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 
-import { cn } from "@/lib/utils"
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+interface ButtonProps {
+  onPress: () => void;
+  title: string;
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  loading?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = "Button"
+const Button = ({
+  onPress,
+  title,
+  variant = 'primary',
+  size = 'medium',
+  disabled = false,
+  loading = false,
+  style,
+  textStyle,
+}: ButtonProps) => {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
-export { Button, buttonVariants }
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={disabled || loading}
+      activeOpacity={0.7}
+    >
+      <Animated.View
+        style={[
+          styles.button,
+          styles[`button_${variant}`],
+          styles[`button_${size}`],
+          disabled && styles.button_disabled,
+          { transform: [{ scale: scaleAnim }] },
+          style,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator
+            color={variant === 'outline' ? '#FF7F00' : '#fff'}
+            size="small"
+          />
+        ) : (
+          <Text
+            style={[
+              styles.text,
+              styles[`text_${variant}`],
+              styles[`text_${size}`],
+              disabled && styles.text_disabled,
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        )}
+      </Animated.View>
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  button: {
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  button_primary: {
+    backgroundColor: '#FF7F00',
+  },
+  button_secondary: {
+    backgroundColor: '#f5f5f5',
+  },
+  button_outline: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#FF7F00',
+  },
+  button_disabled: {
+    opacity: 0.5,
+  },
+  button_small: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  button_medium: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  button_large: {
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+  },
+  text: {
+    fontWeight: '600',
+  },
+  text_primary: {
+    color: '#fff',
+  },
+  text_secondary: {
+    color: '#333',
+  },
+  text_outline: {
+    color: '#FF7F00',
+  },
+  text_disabled: {
+    color: '#999',
+  },
+  text_small: {
+    fontSize: 14,
+  },
+  text_medium: {
+    fontSize: 16,
+  },
+  text_large: {
+    fontSize: 18,
+  },
+});
+
+export default Button;

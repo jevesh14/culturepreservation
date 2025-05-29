@@ -1,33 +1,39 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ChatWithAI from '../components/ChatWithAI';
-import HeroSection from '../components/culture-item/HeroSection';
-import Breadcrumbs from '../components/culture-item/Breadcrumbs';
-import ItemDetailTabs from '../components/culture-item/ItemDetailTabs';
-import RelatedCategories from '../components/culture-item/RelatedCategories';
-import LoadingState from '../components/culture-item/LoadingState';
-import ItemNotFound from '../components/culture-item/ItemNotFound';
-import { toast } from '@/hooks/use-toast';
-import { libraryData } from '../pages/Library';
-import { getCategoryData } from '../pages/CategoryDetail';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Dimensions,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import { libraryData } from './Library';
+import { getCategoryData } from './CategoryDetail';
+import type { RootStackParamList } from '../App';
+
+type CultureItemDetailRouteProp = RouteProp<RootStackParamList, 'CultureItemDetail'>;
 
 const CultureItemDetail = () => {
-  const { itemId } = useParams<{ itemId: string }>();
+  const route = useRoute<CultureItemDetailRouteProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { id: itemId } = route.params;
   const [item, setItem] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (!itemId) {
       setError(true);
       setLoading(false);
-      toast({
-        title: 'Error',
-        description: 'No item ID was provided',
-        variant: 'destructive'
-      });
+      Alert.alert('Error', 'No item ID was provided');
       return;
     }
 
@@ -50,57 +56,253 @@ const CultureItemDetail = () => {
 
       if (matchedItem) {
         setItem(matchedItem);
-        toast({
-          title: 'Loaded',
-          description: `Loaded item: ${matchedItem.title}`
-        });
       } else {
         setError(true);
-        toast({
-          title: 'Item Not Found',
-          description: `No item found for ID: ${itemId}`,
-          variant: 'destructive'
-        });
+        Alert.alert('Item Not Found', `No item found for ID: ${itemId}`);
       }
       setLoading(false);
     }, 300);
   }, [itemId]);
 
-  if (loading) return <LoadingState />;
-  if (error || !item) return <ItemNotFound />;
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF7F00" />
+        <Text style={styles.loadingText}>Loading item details...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !item) {
+    return (
+      <SafeAreaView style={styles.errorContainer}>
+        <Feather name="camera" size={24} color="black" />
+        <Text style={styles.errorTitle}>Item Not Found</Text>
+        <Text style={styles.errorText}>
+          We couldn't find the item you're looking for.
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  const TabButton = ({ title, isActive }: { title: string; isActive: boolean }) => (
+    <View
+      style={[
+        styles.tabButton,
+        isActive && styles.tabButtonActive
+      ]}
+    >
+      <Text
+        style={[
+          styles.tabButtonText,
+          isActive && styles.tabButtonTextActive
+        ]}
+      >
+        {title}
+      </Text>
+    </View>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Image
+            source={{ uri: item.image }}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+          <View style={styles.heroContent}>
+            <Text style={styles.heroTitle}>{item.title}</Text>
+            <Text style={styles.heroMeta}>
+              {item.category} • {item.region}
+            </Text>
+          </View>
+        </View>
 
-      <main className="flex-grow">
-        <HeroSection item={item} />
-        <Breadcrumbs item={item} />
+        {/* Breadcrumbs */}
+        <View style={styles.breadcrumbs}>
+          <Text style={styles.breadcrumbText}>
+            {item.category} / {item.style} / {item.title}
+          </Text>
+        </View>
 
-        {/* Main content */}
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main content column */}
-              <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-                <ItemDetailTabs item={item} />
-              </div>
+        {/* Main Content */}
+        <View style={styles.mainContent}>
+          {/* Tabs */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabsContainer}
+          >
+            {['Overview', 'History', 'Significance', 'Modern Context'].map((tab) => (
+              <TabButton
+                key={tab}
+                title={tab}
+                isActive={activeTab === tab.toLowerCase()}
+              />
+            ))}
+          </ScrollView>
 
-              {/* Sidebar */}
-              <div>
-                <div className="sticky top-6">
-                  <RelatedCategories />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <Footer />
-      <ChatWithAI />
-    </div>
+          {/* Tab Content */}
+          <View style={styles.tabContent}>
+            <Text style={styles.description}>{item.description}</Text>
+            
+            {/* Additional details based on the item */}
+            <View style={styles.detailsGrid}>
+              {item.era && (
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>Era</Text>
+                  <Text style={styles.detailValue}>{item.era}</Text>
+                </View>
+              )}
+              {item.style && (
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>Style</Text>
+                  <Text style={styles.detailValue}>{item.style}</Text>
+                </View>
+              )}
+              {item.region && (
+                <View style={styles.detailItem}>
+                  <Text style={styles.detailLabel}>Region</Text>
+                  <Text style={styles.detailValue}>{item.region}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+const { width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+  },
+  heroSection: {
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: 300,
+  },
+  heroContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  heroMeta: {
+    fontSize: 16,
+    color: '#fff',
+    opacity: 0.9,
+  },
+  breadcrumbs: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  breadcrumbText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  mainContent: {
+    padding: 16,
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  tabButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  tabButtonActive: {
+    backgroundColor: '#FF7F00',
+  },
+  tabButtonText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  tabButtonTextActive: {
+    color: '#fff',
+  },
+  tabContent: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+  },
+  description: {
+    fontSize: 16,
+    color: '#333',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  detailsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -8,
+  },
+  detailItem: {
+    width: (width - 64) / 2,
+    marginHorizontal: 8,
+    marginBottom: 16,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  detailValue: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+});
 
 export default CultureItemDetail;

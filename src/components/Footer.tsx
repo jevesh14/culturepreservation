@@ -1,95 +1,223 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  SafeAreaView,
+  Animated,
+  Dimensions,
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/Feather';
+import type { RootStackParamList } from '../App';
 
-import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail } from 'lucide-react';
+const tabs = [
+  {
+    name: 'Home',
+    icon: 'home',
+    route: 'Home',
+  },
+  {
+    name: 'Library',
+    icon: 'book',
+    route: 'Library',
+  },
+  {
+    name: 'Upload',
+    icon: 'plus-circle',
+    route: 'Upload',
+  },
+  {
+    name: 'Discuss',
+    icon: 'message-circle',
+    route: 'Discussion',
+  },
+];
 
-const Footer = () => {
+const TabButton = ({ 
+  icon, 
+  label, 
+  isActive, 
+  onPress 
+}: { 
+  icon: string; 
+  label: string; 
+  isActive: boolean; 
+  onPress: () => void;
+}) => {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const translateY = React.useRef(new Animated.Value(0)).current;
+
+  const handlePressIn = () => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 0.9,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: -4,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   return (
-    <footer className="bg-gradient-to-br from-cultural-silk/70 to-white border-t mt-10">
-      <div className="container mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div>
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-cultural-saffron to-cultural-maroon flex items-center justify-center text-white font-bold text-xl shadow-md">
-                भा
-              </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-gradient">
-                  भारत संस्कृति
-                </h1>
-                <p className="text-xs text-muted-foreground -mt-1">Bharat Cultural Hub</p>
-              </div>
-            </Link>
-            <p className="text-sm text-gray-600 mb-4">
-              Preserving and celebrating the rich cultural heritage of India through community contributions and shared knowledge.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-500 hover:text-cultural-saffron transition-colors">
-                <Facebook size={18} />
-                <span className="sr-only">Facebook</span>
-              </a>
-              <a href="#" className="text-gray-500 hover:text-cultural-saffron transition-colors">
-                <Twitter size={18} />
-                <span className="sr-only">Twitter</span>
-              </a>
-              <a href="#" className="text-gray-500 hover:text-cultural-saffron transition-colors">
-                <Instagram size={18} />
-                <span className="sr-only">Instagram</span>
-              </a>
-              <a href="#" className="text-gray-500 hover:text-cultural-saffron transition-colors">
-                <Youtube size={18} />
-                <span className="sr-only">Youtube</span>
-              </a>
-            </div>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Explore</h3>
-            <ul className="space-y-2">
-              <li><Link to="/library" className="text-gray-600 hover:text-cultural-saffron transition-colors">Library</Link></li>
-              <li><Link to="/upload" className="text-gray-600 hover:text-cultural-saffron transition-colors">Upload Content</Link></li>
-              <li><Link to="/discussion" className="text-gray-600 hover:text-cultural-saffron transition-colors">Discussion Forum</Link></li>
-              <li><Link to="/events" className="text-gray-600 hover:text-cultural-saffron transition-colors">Cultural Events</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Categories</h3>
-            <ul className="space-y-2">
-              <li><Link to="/library/scriptures" className="text-gray-600 hover:text-cultural-saffron transition-colors">Scriptures</Link></li>
-              <li><Link to="/library/dance-forms" className="text-gray-600 hover:text-cultural-saffron transition-colors">Dance Forms</Link></li>
-              <li><Link to="/library/art-forms" className="text-gray-600 hover:text-cultural-saffron transition-colors">Art Forms</Link></li>
-              <li><Link to="/library/sculptures" className="text-gray-600 hover:text-cultural-saffron transition-colors">Sculptures</Link></li>
-              <li><Link to="/library/festivals" className="text-gray-600 hover:text-cultural-saffron transition-colors">Festivals</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start">
-                <Mail size={16} className="mr-2 mt-0.5 text-cultural-saffron" />
-                <span className="text-gray-600">contact@bharatculturalhub.gov.in</span>
-              </li>
-              <li className="text-gray-600">
-                Ministry of Culture<br />
-                Government of India<br />
-                New Delhi, India
-              </li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="border-t border-gray-200 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Bharat Cultural Hub. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link to="/privacy" className="text-sm text-gray-500 hover:text-cultural-saffron">Privacy Policy</Link>
-            <Link to="/terms" className="text-sm text-gray-500 hover:text-cultural-saffron">Terms of Service</Link>
-            <Link to="/accessibility" className="text-sm text-gray-500 hover:text-cultural-saffron">Accessibility</Link>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <TouchableOpacity
+      style={styles.tab}
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      activeOpacity={0.7}
+    >
+      <Animated.View
+        style={[
+          styles.tabContent,
+          {
+            transform: [
+              { scale: scaleAnim },
+              { translateY },
+            ],
+          },
+        ]}
+      >
+        <Icon
+          name={icon}
+          size={24}
+          color={isActive ? '#FF7F00' : '#666'}
+        />
+        <Text
+          style={[
+            styles.tabText,
+            isActive && styles.tabTextActive,
+          ]}
+        >
+          {label}
+        </Text>
+        {isActive && <View style={styles.activeIndicator} />}
+      </Animated.View>
+    </TouchableOpacity>
   );
 };
+
+const Footer = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const route = useRoute();
+  const translateY = React.useRef(new Animated.Value(100)).current;
+  const opacity = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const isActive = (tabRoute: string) => route.name === tabRoute;
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            transform: [{ translateY }],
+            opacity,
+          },
+        ]}
+      >
+        {tabs.map((tab) => (
+          <TabButton
+            key={tab.name}
+            icon={tab.icon}
+            label={tab.name}
+            isActive={isActive(tab.route)}
+            onPress={() => navigation.navigate(tab.route as keyof RootStackParamList)}
+          />
+        ))}
+      </Animated.View>
+    </SafeAreaView>
+  );
+};
+
+const { width } = Dimensions.get('window');
+const tabWidth = width / tabs.length;
+
+const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: '#fff',
+  },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingBottom: Platform.OS === 'ios' ? 0 : 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  tab: {
+    flex: 1,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tabContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: tabWidth,
+  },
+  tabText: {
+    fontSize: 12,
+    marginTop: 4,
+    color: '#666',
+  },
+  tabTextActive: {
+    color: '#FF7F00',
+    fontWeight: '600',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    bottom: -8,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FF7F00',
+  },
+});
 
 export default Footer;

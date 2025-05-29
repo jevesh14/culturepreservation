@@ -1,363 +1,235 @@
-import * as React from "react"
-import * as RechartsPrimitive from "recharts"
+import React from 'react';
+import { View, StyleSheet, ViewStyle, Platform, Text, Dimensions } from 'react-native';
+import { LineChart, BarChart, PieChart } from 'react-native-svg-charts';
+import { Grid, YAxis, XAxis } from 'react-native-svg-charts';
+import { Circle, G, Line, Text as SVGText } from 'react-native-svg';
 
-import { cn } from "@/lib/utils"
+type ChartType = 'line' | 'bar' | 'pie';
 
-// Format: { THEME_NAME: CSS_SELECTOR }
-const THEMES = { light: "", dark: ".dark" } as const
-
-export type ChartConfig = {
-  [k in string]: {
-    label?: React.ReactNode
-    icon?: React.ComponentType
-  } & (
-    | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
-  )
+interface ChartData {
+  x: number | string;
+  y: number;
+  label?: string;
+  color?: string;
 }
 
-type ChartContextProps = {
-  config: ChartConfig
+interface ChartProps {
+  data: ChartData[];
+  type?: ChartType;
+  style?: ViewStyle;
+  xLabel?: string;
+  yLabel?: string;
+  color?: string;
+  showGrid?: boolean;
+  height?: number;
+  showDataPoints?: boolean;
+  formatYLabel?: (value: number) => string;
+  formatXLabel?: (value: string | number) => string;
 }
 
-const ChartContext = React.createContext<ChartContextProps | null>(null)
+const Chart = ({
+  data,
+  type = 'line',
+  style,
+  xLabel,
+  yLabel,
+  color = '#FF7F00',
+  showGrid = true,
+  height = 250,
+  showDataPoints = true,
+  formatYLabel = (value) => value.toString(),
+  formatXLabel = (value) => value.toString(),
+}: ChartProps) => {
+  const screenWidth = Dimensions.get('window').width;
+  const chartData = data.map(item => item.y);
+  const xData = data.map(item => item.x);
 
-function useChart() {
-  const context = React.useContext(ChartContext)
+  const Decorator = ({ x, y, data }: any) => {
+    if (!showDataPoints) return null;
+    return data.map((value: number, index: number) => (
+      <Circle
+        key={index}
+        cx={x(index)}
+        cy={y(value)}
+        r={4}
+        stroke={color}
+        fill="white"
+        strokeWidth={2}
+      />
+    ));
+  };
 
-  if (!context) {
-    throw new Error("useChart must be used within a <ChartContainer />")
-  }
+  const Labels = ({ slices }: any) => {
+    return slices.map((slice: any, index: number) => {
+      const { labelCentroid, pieCentroid, data } = slice;
+      return (
+        <G key={index}>
+          <Line
+            x1={labelCentroid[0]}
+            y1={labelCentroid[1]}
+            x2={pieCentroid[0]}
+            y2={pieCentroid[1]}
+            stroke={data.svg.fill}
+          />
+          <SVGText
+            x={labelCentroid[0]}
+            y={labelCentroid[1]}
+            fill="#666"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+            fontSize={12}
+          >
+            {data.label}
+          </SVGText>
+        </G>
+      );
+    });
+  };
 
-  return context
-}
+  const renderChart = () => {
+    const commonProps = {
+      style: { height: height - 50 },
+      data: chartData,
+      svg: { fill: color, stroke: color },
+      contentInset: { top: 20, bottom: 20, left: 20, right: 20 },
+      animate: Platform.select({ ios: true, android: false }), // Disable animations on Android for better performance
+    };
 
-const ChartContainer = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & {
-    config: ChartConfig
-    children: React.ComponentProps<
-      typeof RechartsPrimitive.ResponsiveContainer
-    >["children"]
-  }
->(({ id, className, children, config, ...props }, ref) => {
-  const uniqueId = React.useId()
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`
-
-  return (
-    <ChartContext.Provider value={{ config }}>
-      <div
-        data-chart={chartId}
-        ref={ref}
-        className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
-          className
-        )}
-        {...props}
-      >
-        <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>
-          {children}
-        </RechartsPrimitive.ResponsiveContainer>
-      </div>
-    </ChartContext.Provider>
-  )
-})
-ChartContainer.displayName = "Chart"
-
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(
-    ([_, config]) => config.theme || config.color
-  )
-
-  if (!colorConfig.length) {
-    return null
-  }
-
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
-  })
-  .join("\n")}
-}
-`
-          )
-          .join("\n"),
-      }}
-    />
-  )
-}
-
-const ChartTooltip = RechartsPrimitive.Tooltip
-
-const ChartTooltipContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
-    React.ComponentProps<"div"> & {
-      hideLabel?: boolean
-      hideIndicator?: boolean
-      indicator?: "line" | "dot" | "dashed"
-      nameKey?: string
-      labelKey?: string
-    }
->(
-  (
-    {
-      active,
-      payload,
-      className,
-      indicator = "dot",
-      hideLabel = false,
-      hideIndicator = false,
-      label,
-      labelFormatter,
-      labelClassName,
-      formatter,
-      color,
-      nameKey,
-      labelKey,
-    },
-    ref
-  ) => {
-    const { config } = useChart()
-
-    const tooltipLabel = React.useMemo(() => {
-      if (hideLabel || !payload?.length) {
-        return null
-      }
-
-      const [item] = payload
-      const key = `${labelKey || item.dataKey || item.name || "value"}`
-      const itemConfig = getPayloadConfigFromPayload(config, item, key)
-      const value =
-        !labelKey && typeof label === "string"
-          ? config[label as keyof typeof config]?.label || label
-          : itemConfig?.label
-
-      if (labelFormatter) {
+    switch (type) {
+      case 'bar':
         return (
-          <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value, payload)}
-          </div>
-        )
-      }
-
-      if (!value) {
-        return null
-      }
-
-      return <div className={cn("font-medium", labelClassName)}>{value}</div>
-    }, [
-      label,
-      labelFormatter,
-      payload,
-      hideLabel,
-      labelClassName,
-      config,
-      labelKey,
-    ])
-
-    if (!active || !payload?.length) {
-      return null
-    }
-
-    const nestLabel = payload.length === 1 && indicator !== "dot"
-
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
-          className
-        )}
-      >
-        {!nestLabel ? tooltipLabel : null}
-        <div className="grid gap-1.5">
-          {payload.map((item, index) => {
-            const key = `${nameKey || item.name || item.dataKey || "value"}`
-            const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
-
-            return (
-              <div
-                key={item.dataKey}
-                className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
-                  indicator === "dot" && "items-center"
-                )}
+          <View style={[styles.chartContainer, { height }]}>
+            <YAxis
+              data={chartData}
+              contentInset={{ top: 20, bottom: 20 }}
+              svg={{ fontSize: 12, fill: '#666' }}
+              formatLabel={(value) => formatYLabel(value)}
+              numberOfTicks={5}
+            />
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <BarChart
+                {...commonProps}
+                svg={{ fill: color }}
+                spacingInner={0.3}
+                spacingOuter={0.3}
               >
-                {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name, item, index, item.payload)
-                ) : (
-                  <>
-                    {itemConfig?.icon ? (
-                      <itemConfig.icon />
-                    ) : (
-                      !hideIndicator && (
-                        <div
-                          className={cn(
-                            "shrink-0 rounded-[2px] border-[--color-border] bg-[--color-bg]",
-                            {
-                              "h-2.5 w-2.5": indicator === "dot",
-                              "w-1": indicator === "line",
-                              "w-0 border-[1.5px] border-dashed bg-transparent":
-                                indicator === "dashed",
-                              "my-0.5": nestLabel && indicator === "dashed",
-                            }
-                          )}
-                          style={
-                            {
-                              "--color-bg": indicatorColor,
-                              "--color-border": indicatorColor,
-                            } as React.CSSProperties
-                          }
-                        />
-                      )
-                    )}
-                    <div
-                      className={cn(
-                        "flex flex-1 justify-between leading-none",
-                        nestLabel ? "items-end" : "items-center"
-                      )}
-                    >
-                      <div className="grid gap-1.5">
-                        {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">
-                          {itemConfig?.label || item.name}
-                        </span>
-                      </div>
-                      {item.value && (
-                        <span className="font-mono font-medium tabular-nums text-foreground">
-                          {item.value.toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
-  }
-)
-ChartTooltipContent.displayName = "ChartTooltip"
-
-const ChartLegend = RechartsPrimitive.Legend
-
-const ChartLegendContent = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
-      hideIcon?: boolean
-      nameKey?: string
-    }
->(
-  (
-    { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
-    ref
-  ) => {
-    const { config } = useChart()
-
-    if (!payload?.length) {
-      return null
-    }
-
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          "flex items-center justify-center gap-4",
-          verticalAlign === "top" ? "pb-3" : "pt-3",
-          className
-        )}
-      >
-        {payload.map((item) => {
-          const key = `${nameKey || item.dataKey || "value"}`
-          const itemConfig = getPayloadConfigFromPayload(config, item, key)
-
-          return (
-            <div
-              key={item.value}
-              className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
-              )}
+                {showGrid && <Grid direction={Grid.Direction.HORIZONTAL} />}
+              </BarChart>
+              <XAxis
+                data={xData}
+                formatLabel={(_, index) => formatXLabel(xData[index])}
+                contentInset={{ left: 20, right: 20 }}
+                svg={{ fontSize: 12, fill: '#666' }}
+                numberOfTicks={Math.min(xData.length, 5)}
+              />
+            </View>
+          </View>
+        );
+      case 'pie':
+        const pieData = data.map((item, index) => ({
+          value: item.y,
+          key: index,
+          svg: { fill: item.color || color },
+          arc: { 
+            outerRadius: '80%', 
+            cornerRadius: Platform.select({ ios: 5, android: 0 }) 
+          },
+          label: item.label || formatYLabel(item.y),
+        }));
+        return (
+          <View style={[styles.chartContainer, { height }]}>
+            <PieChart
+              style={{ height: height - 50 }}
+              data={pieData}
+              innerRadius={Platform.select({ ios: '20%', android: '10%' })}
+              outerRadius="80%"
+              labelRadius={Platform.select({ ios: 110, android: 90 })}
             >
-              {itemConfig?.icon && !hideIcon ? (
-                <itemConfig.icon />
-              ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
-              )}
-              {itemConfig?.label}
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-)
-ChartLegendContent.displayName = "ChartLegend"
+              <Labels />
+            </PieChart>
+          </View>
+        );
+      default:
+        return (
+          <View style={[styles.chartContainer, { height }]}>
+            <YAxis
+              data={chartData}
+              contentInset={{ top: 20, bottom: 20 }}
+              svg={{ fontSize: 12, fill: '#666' }}
+              formatLabel={(value) => formatYLabel(value)}
+              numberOfTicks={5}
+            />
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <LineChart
+                {...commonProps}
+                svg={{ stroke: color, strokeWidth: 2 }}
+              >
+                {showGrid && <Grid direction={Grid.Direction.HORIZONTAL} />}
+                <Decorator />
+              </LineChart>
+              <XAxis
+                data={xData}
+                formatLabel={(_, index) => formatXLabel(xData[index])}
+                contentInset={{ left: 20, right: 20 }}
+                svg={{ fontSize: 12, fill: '#666' }}
+                numberOfTicks={Math.min(xData.length, 5)}
+              />
+            </View>
+          </View>
+        );
+    }
+  };
 
-// Helper to extract item config from a payload.
-function getPayloadConfigFromPayload(
-  config: ChartConfig,
-  payload: unknown,
-  key: string
-) {
-  if (typeof payload !== "object" || payload === null) {
-    return undefined
-  }
+  return (
+    <View style={[styles.container, style]}>
+      {xLabel && (
+        <Text style={styles.axisLabel}>{xLabel}</Text>
+      )}
+      {yLabel && (
+        <Text style={[styles.axisLabel, styles.yAxisLabel]}>{yLabel}</Text>
+      )}
+      {renderChart()}
+    </View>
+  );
+};
 
-  const payloadPayload =
-    "payload" in payload &&
-    typeof payload.payload === "object" &&
-    payload.payload !== null
-      ? payload.payload
-      : undefined
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  chartContainer: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+  },
+  axisLabel: {
+    textAlign: 'center',
+    color: '#666',
+    fontSize: 14,
+    marginBottom: 8,
+    fontFamily: Platform.select({
+      ios: 'System',
+      android: 'Roboto',
+    }),
+  },
+  yAxisLabel: {
+    transform: [{ rotate: '-90deg' }],
+    position: 'absolute',
+    left: -30,
+    top: '50%',
+  },
+});
 
-  let configLabelKey: string = key
-
-  if (
-    key in payload &&
-    typeof payload[key as keyof typeof payload] === "string"
-  ) {
-    configLabelKey = payload[key as keyof typeof payload] as string
-  } else if (
-    payloadPayload &&
-    key in payloadPayload &&
-    typeof payloadPayload[key as keyof typeof payloadPayload] === "string"
-  ) {
-    configLabelKey = payloadPayload[
-      key as keyof typeof payloadPayload
-    ] as string
-  }
-
-  return configLabelKey in config
-    ? config[configLabelKey]
-    : config[key as keyof typeof config]
-}
-
-export {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-  ChartStyle,
-}
+export default Chart;

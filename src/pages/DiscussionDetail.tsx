@@ -1,64 +1,172 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+} from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
+import type { RootStackParamList } from '../App';
 
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { Textarea } from '../components/ui/textarea';
-import ChatWithAI from '../components/ChatWithAI';
+type DiscussionDetailRouteProp = RouteProp<RootStackParamList, 'DiscussionDetail'>;
 
 const DiscussionDetail = () => {
-  const { id } = useParams();
+  const route = useRoute<DiscussionDetailRouteProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { id } = route.params;
   const [comment, setComment] = useState('');
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <Link to="/discussion" className="inline-flex items-center text-gray-600 hover:text-cultural-saffron mb-6">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            <span>Back to discussions</span>
-          </Link>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        {/* Back Button */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Discussion')}
+        >
+          <Feather name="camera" size={24} color="black" />
+          <Text style={styles.backButtonText}>Back to discussions</Text>
+        </TouchableOpacity>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-6 mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2">Discussion #{id}</h1>
-            
-            <div className="py-6 border-t border-b my-6">
-              <p className="text-gray-600">
-                This is a placeholder for the discussion content. Real discussion data needs to be added here.
-              </p>
-            </div>
-            
-            <h2 className="text-xl font-bold mb-4">Comments</h2>
-            
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <p className="text-gray-500 text-center">No comments yet for this discussion.</p>
-            </div>
-            
-            <div className="mt-8">
-              <h3 className="font-medium mb-2">Add your comment</h3>
-              <Textarea
-                placeholder="Write your thoughts..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="mb-3 min-h-[100px]"
-              />
-              <button 
-                className="px-4 py-2 bg-cultural-saffron text-white rounded-lg hover:bg-cultural-saffron/90 transition-colors"
-              >
-                Post Comment
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      <Footer />
-      <ChatWithAI />
-    </div>
+        {/* Main Content */}
+        <View style={styles.card}>
+          <Text style={styles.title}>Discussion #{id}</Text>
+
+          <View style={styles.contentSection}>
+            <Text style={styles.contentText}>
+              This is a placeholder for the discussion content. Real discussion data needs to be added here.
+            </Text>
+          </View>
+
+          <Text style={styles.sectionTitle}>Comments</Text>
+
+          <View style={styles.commentsSection}>
+            <Text style={styles.noCommentsText}>
+              No comments yet for this discussion.
+            </Text>
+          </View>
+
+          <View style={styles.commentForm}>
+            <Text style={styles.commentFormTitle}>Add your comment</Text>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Write your thoughts..."
+              value={comment}
+              onChangeText={setComment}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+            <TouchableOpacity style={styles.submitButton}>
+              <Text style={styles.submitButtonText}>Post Comment</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  scrollView: {
+    flex: 1,
+    padding: 16,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  backButtonText: {
+    marginLeft: 8,
+    color: '#666',
+    fontSize: 14,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  contentSection: {
+    paddingVertical: 24,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    marginVertical: 24,
+  },
+  contentText: {
+    color: '#666',
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  commentsSection: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    padding: 24,
+    marginBottom: 24,
+  },
+  noCommentsText: {
+    color: '#666',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  commentForm: {
+    marginTop: 32,
+  },
+  commentFormTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    height: 100,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+  submitButton: {
+    backgroundColor: '#FF7F00',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default DiscussionDetail;

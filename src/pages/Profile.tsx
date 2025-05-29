@@ -1,274 +1,353 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight, User, Edit, Bell, Shield, LogOut } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ChatWithAI from '../components/ChatWithAI';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Switch,
+  Alert,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Feather } from '@expo/vector-icons';
+import type { RootStackParamList } from '../App';
 
 const Profile = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
 
-  // If not authenticated, show the username auth option
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow flex items-center justify-center py-12 bg-gray-50">
-          <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg border border-cultural-saffron/10">
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-cultural-saffron/10 rounded-full mb-4">
-                <User className="h-8 w-8 text-cultural-saffron" />
-              </div>
-              <h1 className="text-2xl font-bold mb-2">Sign in to your account</h1>
-              <p className="text-gray-600">Access your profile and preferences</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700">Username</label>
-                <Input 
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Enter your username"
-                  className="w-full"
-                />
-              </div>
-              
-              <Button 
-                onClick={() => {
-                  if (username.trim()) {
-                    setIsAuthenticated(true);
-                    toast({
-                      title: "Welcome back!",
-                      description: "You have successfully signed in",
-                    });
-                  } else {
-                    toast({
-                      title: "Username required",
-                      description: "Please enter a username to continue",
-                      variant: "destructive"
-                    });
-                  }
-                }}
-                className="w-full bg-cultural-saffron hover:bg-cultural-saffron/90 text-white py-2 rounded-lg flex items-center justify-center"
-              >
-                <span className="flex items-center">
-                  Sign in
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </span>
-              </Button>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-              <p className="text-sm text-gray-600">
-                Join the community to explore and contribute to Bharat's cultural heritage.
-              </p>
-            </div>
-          </div>
-        </main>
-        <Footer />
-        <ChatWithAI />
-      </div>
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: () => {
+            // Clear auth token from secure storage (implement this)
+            navigation.replace('MobileAuth');
+          },
+        },
+      ]
     );
-  }
+  };
 
-  // Authenticated user view
+  const MenuItem = ({ icon, title, subtitle, onPress }: any) => (
+    <TouchableOpacity
+      style={styles.menuItem}
+      onPress={onPress}
+    >
+      <View style={styles.menuIcon}>
+      <Feather name="camera" size={24} color="black" />
+      </View>
+      <View style={styles.menuContent}>
+        <Text style={styles.menuTitle}>{title}</Text>
+        {subtitle && <Text style={styles.menuSubtitle}>{subtitle}</Text>}
+      </View>
+      <Feather name="camera" size={24} color="black" />
+    </TouchableOpacity>
+  );
+
+  const NotificationItem = ({ title, subtitle, value, onValueChange }: any) => (
+    <View style={styles.notificationItem}>
+      <View style={styles.notificationContent}>
+        <Text style={styles.notificationTitle}>{title}</Text>
+        <Text style={styles.notificationSubtitle}>{subtitle}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        trackColor={{ false: '#ddd', true: '#FF7F00' }}
+        thumbColor="#fff"
+      />
+    </View>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Profile header */}
-            <div className="bg-white rounded-xl shadow-sm mb-6 overflow-hidden">
-              <div className="h-32 bg-gradient-to-r from-cultural-saffron to-cultural-maroon"></div>
-              <div className="px-6 pb-6">
-                <div className="flex flex-col md:flex-row items-center md:items-end -mt-12 space-y-4 md:space-y-0 md:space-x-6">
-                  <div className="h-24 w-24 rounded-full bg-white p-1 shadow-lg">
-                    <div className="h-full w-full rounded-full bg-gradient-to-br from-cultural-peacock to-cultural-blue flex items-center justify-center text-white text-3xl font-semibold">
-                      {username ? username.charAt(0).toUpperCase() : "U"}
-                    </div>
-                  </div>
-                  <div className="text-center md:text-left">
-                    <h1 className="text-2xl font-bold">{username || "User"}</h1>
-                    <p className="text-gray-600">Cultural enthusiast</p>
-                  </div>
-                  <div className="ml-auto">
-                    <Button variant="outline" size="sm" className="flex items-center">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Profile
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <SafeAreaView style={styles.container}>
+      <ScrollView>
+        {/* Profile Header */}
+        <View style={styles.header}>
+          <View style={styles.profileInfo}>
+            <View style={styles.avatarContainer}>
+              <Text style={styles.avatarText}>BJ</Text>
+            </View>
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>Bhavika Jain</Text>
+              <Text style={styles.userPhone}>+91 98765 43210</Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => Alert.alert('Edit Profile', 'This feature is coming soon!')}
+          >
+            <Feather name="camera" size={24} color="black" />
+            <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+        </View>
 
-            {/* Profile content */}
-            <Tabs defaultValue="account">
-              <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-                <TabsList className="grid grid-cols-3 mb-6">
-                  <TabsTrigger value="account">Account</TabsTrigger>
-                  <TabsTrigger value="preferences">Preferences</TabsTrigger>
-                  <TabsTrigger value="security">Security</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="account" className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Personal Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Name</label>
-                        <Input placeholder="Your name" defaultValue={username || "User"} />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Email</label>
-                        <Input placeholder="Your email" defaultValue="user@example.com" />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Username</label>
-                        <Input placeholder="Your username" defaultValue={username} />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Location</label>
-                        <Input placeholder="Your location" defaultValue="Delhi, India" />
-                      </div>
-                    </div>
-                    <div className="mt-6">
-                      <Button 
-                        onClick={() => {
-                          toast({
-                            title: "Profile updated",
-                            description: "Your profile information has been updated successfully.",
-                          });
-                        }}
-                      >
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="preferences" className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Notification Preferences</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Email Notifications</p>
-                          <p className="text-sm text-gray-500">Receive updates about new cultural content</p>
-                        </div>
-                        <div className="flex items-center h-6">
-                          <input
-                            id="email-notifications"
-                            aria-describedby="email-notifications-description"
-                            name="email-notifications"
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
-                            defaultChecked
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">SMS Notifications</p>
-                          <p className="text-sm text-gray-500">Get alerts via SMS for important updates</p>
-                        </div>
-                        <div className="flex items-center h-6">
-                          <input
-                            id="sms-notifications"
-                            aria-describedby="sms-notifications-description"
-                            name="sms-notifications"
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          <MenuItem
+            icon="user"
+            title="Personal Information"
+            subtitle="Manage your profile details"
+            onPress={() => Alert.alert('Profile', 'View and edit your profile information')}
+          />
+          <MenuItem
+            icon="map-pin"
+            title="Location"
+            subtitle="Delhi, India"
+            onPress={() => Alert.alert('Location', 'Update your location')}
+          />
+          <MenuItem
+            icon="globe"
+            title="Language"
+            subtitle="English"
+            onPress={() => Alert.alert('Language', 'Choose your preferred language')}
+          />
+        </View>
 
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Cultural Interests</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+        {/* Notifications Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notifications</Text>
+          <NotificationItem
+            title="Email Notifications"
+            subtitle="Get updates about cultural content"
+            value={emailNotifications}
+            onValueChange={setEmailNotifications}
+          />
+          <NotificationItem
+            title="SMS Notifications"
+            subtitle="Receive alerts via SMS"
+            value={smsNotifications}
+            onValueChange={setSmsNotifications}
+          />
+        </View>
+
+        {/* Cultural Interests */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Cultural Interests</Text>
+          <View style={styles.interestsGrid}>
                       {['Scriptures', 'Dance Forms', 'Art Forms', 'Festivals', 'Music', 'Architecture'].map((interest) => (
-                        <div key={interest} className="flex items-center">
-                          <input
-                            id={`interest-${interest}`}
-                            name={`interest-${interest}`}
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-cultural-saffron focus:ring-cultural-saffron"
-                            defaultChecked={['Scriptures', 'Art Forms', 'Festivals'].includes(interest)}
-                          />
-                          <label htmlFor={`interest-${interest}`} className="ml-2 text-sm text-gray-700">
+              <TouchableOpacity
+                key={interest}
+                style={[
+                  styles.interestTag,
+                  ['Scriptures', 'Art Forms', 'Festivals'].includes(interest) && styles.interestTagActive
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.interestText,
+                    ['Scriptures', 'Art Forms', 'Festivals'].includes(interest) && styles.interestTextActive
+                  ]}
+                >
                             {interest}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-6">
-                      <Button 
-                        onClick={() => {
-                          toast({
-                            title: "Preferences updated",
-                            description: "Your preferences have been updated successfully.",
-                          });
-                        }}
-                      >
-                        Save Preferences
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="security" className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Username</h3>
-                    <div className="flex items-center justify-between pb-4 border-b">
-                      <div>
-                        <p className="font-medium">{username || "User"}</p>
-                        <p className="text-sm text-gray-500">Your login username</p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Change
-                      </Button>
-                    </div>
-                  </div>
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-                  <div className="pt-4">
-                    <h3 className="text-lg font-medium mb-4">Account Actions</h3>
-                    <div className="space-y-4">
-                      <Button 
-                        variant="outline" 
-                        className="w-full flex justify-between items-center text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => {
-                          setIsAuthenticated(false);
-                          toast({
-                            title: "Signed out",
-                            description: "You have been signed out successfully.",
-                          });
-                        }}
-                      >
-                        <span>Sign Out</span>
-                        <LogOut className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
-        </div>
-      </main>
-      <Footer />
-      <ChatWithAI />
-    </div>
+        {/* More Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>More</Text>
+          <MenuItem
+            icon="help-circle"
+            title="Help & Support"
+            onPress={() => Alert.alert('Help', 'Contact our support team')}
+          />
+          <MenuItem
+            icon="info"
+            title="About"
+            onPress={() => Alert.alert('About', 'Learn more about our app')}
+          />
+          <MenuItem
+            icon="shield"
+            title="Privacy Policy"
+            onPress={() => Alert.alert('Privacy', 'Read our privacy policy')}
+          />
+        </View>
+
+        {/* Sign Out Button */}
+        <TouchableOpacity
+          style={styles.signOutButton}
+          onPress={handleLogout}
+        >
+          <Feather name="camera" size={24} color="black" />
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#fff',
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  profileInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FF7F00',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  avatarText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  userPhone: {
+    fontSize: 14,
+    color: '#666',
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#FF7F00',
+    borderRadius: 20,
+  },
+  editButtonText: {
+    color: '#FF7F00',
+    marginLeft: 4,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  section: {
+    backgroundColor: '#fff',
+    marginTop: 16,
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  menuIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FF7F00/10',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  menuContent: {
+    flex: 1,
+  },
+  menuTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  menuSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  notificationContent: {
+    flex: 1,
+    marginRight: 16,
+  },
+  notificationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  notificationSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  interestsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -4,
+  },
+  interestTag: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    margin: 4,
+  },
+  interestTagActive: {
+    backgroundColor: '#FF7F00/10',
+  },
+  interestText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  interestTextActive: {
+    color: '#FF7F00',
+    fontWeight: '600',
+  },
+  signOutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    marginTop: 16,
+    marginBottom: 32,
+    padding: 16,
+  },
+  signOutText: {
+    marginLeft: 8,
+    color: '#FF4444',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default Profile;

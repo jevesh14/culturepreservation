@@ -1,11 +1,19 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Search, Filter, X, ChevronDown } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import CultureCard from '../components/CultureCard';
-import FilterChips from '../components/FilterChips';
-import ChatWithAI from '../components/ChatWithAI';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  FlatList,
+  Dimensions,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Feather } from '@expo/vector-icons';
 
 // Sample data for library content
 export const libraryData = [
@@ -263,7 +271,7 @@ const eras = [
   { id: 'annual', label: 'Annual' }
 ];
 
-const styles = [
+const styleOptions = [
   { id: 'rajput', label: 'Rajput' },
   { id: 'rajput-mughal', label: 'Rajput-Mughal' },
   { id: 'jain', label: 'Jain' },
@@ -278,211 +286,271 @@ const styles = [
   { id: 'urban', label: 'Urban' }
 ];
 
+type RootStackParamList = {
+  Home: undefined;
+  Library: undefined;
+  CultureItemDetail: { id: string };
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 const Library = () => {
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-  const [selectedEras, setSelectedEras] = useState<string[]>([]);
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Filter the library data based on selections
+  const navigation = useNavigation<NavigationProp>();
+
   const filteredData = libraryData.filter(item => {
-    // Search query filter
-    if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !item.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    // Category filter
-    if (selectedCategories.length > 0 && !selectedCategories.some(cat => 
-      item.category.toLowerCase().replace(/\s+/g, '-') === cat)) {
-      return false;
-    }
-    
-    // Region filter
-    if (selectedRegions.length > 0 && !selectedRegions.some(region => 
-      (item.region && item.region.toLowerCase().replace(/\s+/g, '-') === region))) {
-      return false;
-    }
-    
-    // Era filter
-    if (selectedEras.length > 0 && !selectedEras.some(era => 
-      (item.era && item.era.toLowerCase().replace(/\s+/g, '-') === era))) {
-      return false;
-    }
-    
-    // Style filter
-    if (selectedStyles.length > 0 && !selectedStyles.some(style => 
-      (item.style && item.style.toLowerCase() === style))) {
-      return false;
-    }
-    
-    return true;
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(item.category);
+    const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(item.region);
+    return matchesSearch && matchesCategory && matchesRegion;
   });
 
   const clearAllFilters = () => {
     setSelectedCategories([]);
     setSelectedRegions([]);
-    setSelectedEras([]);
-    setSelectedStyles([]);
-    setSearchQuery('');
   };
 
-  const hasActiveFilters = selectedCategories.length > 0 || selectedRegions.length > 0 || 
-                            selectedEras.length > 0 || selectedStyles.length > 0 || searchQuery;
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  const toggleRegion = (region: string) => {
+    setSelectedRegions(prev =>
+      prev.includes(region)
+        ? prev.filter(r => r !== region)
+        : [...prev, region]
+    );
+  };
+
+  const renderCultureCard = ({ item }: { item: typeof libraryData[0] }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('CultureItemDetail', { id: item.id })}
+    >
+      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{item.title}</Text>
+        <Text style={styles.cardMeta}>{item.category} • {item.region}</Text>
+        <Text style={styles.cardDescription} numberOfLines={2}>
+          {item.description}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const FilterChip = ({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) => (
+    <TouchableOpacity
+      style={[styles.filterChip, selected && styles.filterChipSelected]}
+      onPress={onPress}
+    >
+      <Text style={[styles.filterChipText, selected && styles.filterChipTextSelected]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      <main className="flex-grow">
-        {/* Library Header */}
-        <section className="bg-gradient-to-r from-cultural-silk to-white py-10 border-b">
-          <div className="container mx-auto px-4">
-            <Link to="/" className="inline-flex items-center text-gray-600 hover:text-cultural-saffron mb-4">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              <span>Back to home</span>
-            </Link>
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Cultural Library</h1>
-                <p className="text-gray-600">Discover and explore the richness of Indian cultural heritage</p>
-              </div>
-              
-              {/* Search and filter */}
-              <div className="mt-4 md:mt-0 w-full md:w-auto">
-                <div className="flex flex-col md:flex-row gap-2">
-                  <div className="relative w-full md:w-64">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Search className="h-4 w-4 text-gray-500" />
-                    </div>
-                    <input 
-                      type="text" 
-                      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-cultural-saffron focus:ring-2 focus:ring-cultural-saffron/20 outline-none"
-                      placeholder="Search library..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  
-                  <button 
-                    className="flex items-center space-x-1 px-4 py-2 bg-white border border-gray-300 rounded-lg md:ml-2 hover:bg-gray-50"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    <Filter className="h-4 w-4" />
-                    <span>Filters</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* Filters Section */}
-        {showFilters && (
-          <section className="py-6 bg-gray-50 border-b animate-fade-in">
-            <div className="container mx-auto px-4">
-              <div className="flex flex-col md:flex-row justify-between items-start mb-4">
-                <h2 className="text-xl font-bold">Filter Results</h2>
-                {hasActiveFilters && (
-                  <button 
-                    className="text-cultural-saffron hover:underline text-sm flex items-center mt-2 md:mt-0"
-                    onClick={clearAllFilters}
-                  >
-                    <X className="h-3 w-3 mr-1" />
-                    Clear all filters
-                  </button>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <FilterChips 
-                  title="Categories" 
-                  options={categories} 
-                  selectedOptions={selectedCategories}
-                  onChange={setSelectedCategories}
-                />
-                
-                <FilterChips 
-                  title="Regions" 
-                  options={regions} 
-                  selectedOptions={selectedRegions}
-                  onChange={setSelectedRegions}
-                />
-                
-                <FilterChips 
-                  title="Era" 
-                  options={eras} 
-                  selectedOptions={selectedEras}
-                  onChange={setSelectedEras}
-                />
-                
-                <FilterChips 
-                  title="Style" 
-                  options={styles} 
-                  selectedOptions={selectedStyles}
-                  onChange={setSelectedStyles}
-                />
-              </div>
-            </div>
-          </section>
-        )}
-        
-        {/* Content Results */}
-        <section className="py-10 bg-gray-50">
-          <div className="container mx-auto px-4">
-            {hasActiveFilters && (
-              <div className="mb-6">
-                <p className="text-sm text-gray-600">
-                  Showing {filteredData.length} results
-                  {searchQuery && ` for "${searchQuery}"`}
-                </p>
-              </div>
-            )}
-            
-            {filteredData.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {filteredData.map((item) => (
-                  <CultureCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    image={item.image}
-                    category={item.category}
-                    region={item.region}
-                    era={item.era}
-                    description={item.description}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="mx-auto w-16 h-16 mb-4 text-gray-300">
-                  <Search className="w-16 h-16" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">No results found</h3>
-                <p className="text-gray-600 mb-4">
-                  We couldn't find any cultural content matching your criteria.
-                </p>
-                <button 
-                  onClick={clearAllFilters}
-                  className="text-cultural-saffron hover:underline"
-                >
-                  Clear all filters to see all content
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
-      </main>
-      
-      <Footer />
-      <ChatWithAI />
-    </div>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Feather name="camera" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Cultural Library</Text>
+      </View>
+
+      <View style={styles.searchContainer}>
+      <Feather name="camera" size={24} color="black" />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search cultural heritage..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setShowFilters(!showFilters)}
+        >
+          <Feather name="camera" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+
+      {showFilters && (
+        <View style={styles.filtersSection}>
+          <View style={styles.filterHeader}>
+            <Text style={styles.filterTitle}>Filters</Text>
+            <TouchableOpacity onPress={clearAllFilters}>
+              <Text style={styles.clearFilters}>Clear all</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.filterGroupTitle}>Categories</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
+            {categories.map(category => (
+              <FilterChip
+                key={category.id}
+                label={category.label}
+                selected={selectedCategories.includes(category.label)}
+                onPress={() => toggleCategory(category.label)}
+              />
+            ))}
+          </ScrollView>
+
+          <Text style={styles.filterGroupTitle}>Regions</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsContainer}>
+            {regions.map(region => (
+              <FilterChip
+                key={region.id}
+                label={region.label}
+                selected={selectedRegions.includes(region.label)}
+                onPress={() => toggleRegion(region.label)}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      <FlatList
+        data={filteredData}
+        renderItem={renderCultureCard}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
   );
 };
+
+const { width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
+  filterButton: {
+    marginLeft: 16,
+  },
+  filtersSection: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  filterHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  filterTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  clearFilters: {
+    color: '#FF7F00',
+  },
+  filterGroupTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  chipsContainer: {
+    marginBottom: 16,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#f5f5f5',
+    marginRight: 8,
+  },
+  filterChipSelected: {
+    backgroundColor: '#FF7F00',
+  },
+  filterChipText: {
+    color: '#666',
+  },
+  filterChipTextSelected: {
+    color: 'white',
+  },
+  listContainer: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardImage: {
+    width: '100%',
+    height: 200,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  cardContent: {
+    padding: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  cardMeta: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: '#444',
+    lineHeight: 20,
+  },
+});
 
 export default Library;

@@ -4,17 +4,35 @@
   "rsc": false,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
-    "css": "src/index.css",
+    "config": "tailwind.config.js",
+    "css": "src/styles/globals.css",
     "baseColor": "slate",
-    "cssVariables": true,
-    "prefix": ""
+    "cssVariables": true
   },
   "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
+    "components": "@components",
+    "utils": "@lib/utils"
+  },
+  "themes": {
+    "light": {
+      "primary": "#007AFF",
+      "secondary": "#5856D6",
+      "background": "#FFFFFF",
+      "surface": "#F2F2F7",
+      "text": "#000000",
+      "error": "#FF3B30",
+      "success": "#34C759",
+      "warning": "#FF9500"
+    },
+    "dark": {
+      "primary": "#0A84FF",
+      "secondary": "#5E5CE6",
+      "background": "#000000",
+      "surface": "#1C1C1E",
+      "text": "#FFFFFF",
+      "error": "#FF453A",
+      "success": "#32D74B",
+      "warning": "#FF9F0A"
+    }
   }
 }

@@ -1,24 +1,90 @@
-import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
-import { cva, type VariantProps } from "class-variance-authority"
+import React from 'react';
+import {
+  Text,
+  StyleSheet,
+  TextStyle,
+  Pressable,
+  Animated,
+} from 'react-native';
 
-import { cn } from "@/lib/utils"
+interface LabelProps {
+  children: React.ReactNode;
+  style?: TextStyle;
+  required?: boolean;
+  disabled?: boolean;
+  onPress?: () => void;
+}
 
-const labelVariants = cva(
-  "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-)
+const Label = ({
+  children,
+  style,
+  required = false,
+  disabled = false,
+  onPress,
+}: LabelProps) => {
+  const opacityAnim = React.useRef(new Animated.Value(1)).current;
 
-const Label = React.forwardRef<
-  React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
-    VariantProps<typeof labelVariants>
->(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(labelVariants(), className)}
-    {...props}
-  />
-))
-Label.displayName = LabelPrimitive.Root.displayName
+  const handlePressIn = () => {
+    if (!onPress) return;
+    Animated.spring(opacityAnim, {
+      toValue: 0.7,
+      useNativeDriver: true,
+    }).start();
+  };
 
-export { Label }
+  const handlePressOut = () => {
+    if (!onPress) return;
+    Animated.spring(opacityAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const renderContent = () => (
+    <Animated.Text
+      style={[
+        styles.label,
+        disabled && styles.disabled,
+        { opacity: opacityAnim },
+        style,
+      ]}
+      accessibilityRole="text"
+    >
+      {children}
+      {required && <Text style={styles.required}> *</Text>}
+    </Animated.Text>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        accessibilityRole="button"
+      >
+        {renderContent()}
+      </Pressable>
+    );
+  }
+
+  return renderContent();
+};
+
+const styles = StyleSheet.create({
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 4,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+  required: {
+    color: '#FF7F00',
+  },
+});
+
+export default Label;

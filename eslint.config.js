@@ -1,29 +1,48 @@
-import js from "@eslint/js";
-import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
-import tseslint from "typescript-eslint";
-
-export default tseslint.config(
-  { ignores: ["dist"] },
-  {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ["**/*.{ts,tsx}"],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
+module.exports = {
+  root: true,
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:react-native/all',
+    '@react-native-community',
+    'prettier'
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    '@typescript-eslint',
+    'react',
+    'react-native',
+    'prettier'
+  ],
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true
     },
-    plugins: {
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
-      "@typescript-eslint/no-unused-vars": "off",
-    },
+    ecmaVersion: 'latest',
+    sourceType: 'module'
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
+  },
+  env: {
+    'react-native/react-native': true,
+    'jest': true
+  },
+  rules: {
+    'react/react-in-jsx-scope': 'off',
+    'react-native/no-inline-styles': 'warn',
+    'react-native/no-color-literals': 'warn',
+    'react-native/no-raw-text': ['warn', {
+      skip: ['CustomText']
+    }],
+    '@typescript-eslint/no-unused-vars': ['error', {
+      argsIgnorePattern: '^_',
+      varsIgnorePattern: '^_'
+    }],
+    'prettier/prettier': 'error'
   }
-);
+};
